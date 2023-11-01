@@ -18,13 +18,13 @@ namespace Sokoban
             int playerX = 10;
             int playerY = 5;
 
-            while(true)
+            while (true)
             {
                 // 출력 : 지속적으로 화면을 지우고 출력
-                Console.Clear();    
+                Console.Clear();
                 Console.CursorVisible = false;
                 Console.SetCursorPosition(playerX, playerY);
-                Console.Write("◎"); 
+                Console.Write("◎");
 
                 // 입력
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
@@ -50,7 +50,15 @@ namespace Sokoban
                 else if (playerY >= Console.BufferHeight)
                 {
                     playerY--;
-                }           
+                }
+
+                //대쉬? 순간이동? 쨋든 3칸 이동
+                if (keyInfo.Key == ConsoleKey.LeftArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerX -= 3;  //왼쪽
+                if (keyInfo.Key == ConsoleKey.RightArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerX += 3; //오른쪽
+                if (keyInfo.Key == ConsoleKey.UpArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerY -= 3;    //위    
+                if (keyInfo.Key == ConsoleKey.DownArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerY += 3;  //아래
+                
+
             }
         }
     }
