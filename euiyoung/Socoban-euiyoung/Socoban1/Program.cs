@@ -29,19 +29,25 @@
                 ConsoleKeyInfo keyinfo = Console.ReadKey();
                 Console.Clear();
 
-                switch (keyinfo.Key.ToString())
+                switch (keyinfo.Key)
                 {
-                    case "A":
+                    case ConsoleKey.A:
+                    case ConsoleKey.LeftArrow:
                         if (playerX > 0)
                             playerX--;
                         break;
-                    case "D":
-                        playerX++; break;
-                    case "W":
+                    case ConsoleKey.D:
+                    case ConsoleKey.RightArrow:
+                        if(playerX <short.MaxValue) playerX++;
+                        break;
+                    case ConsoleKey.W:
+                    case ConsoleKey.UpArrow:
                         if (playerY > 0)
                             playerY--; break;
-                    case "S":
-                        playerY++;
+                    case ConsoleKey.S:
+                    case ConsoleKey.DownArrow:
+                        if (playerY < short.MaxValue)
+                            playerY++;
                         break;
                     default:
                         break;
