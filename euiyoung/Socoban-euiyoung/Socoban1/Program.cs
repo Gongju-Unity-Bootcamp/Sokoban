@@ -4,68 +4,78 @@
     {
         static void Main(string[] args)
         {
+            //화면 초기화
             Console.ResetColor();
             Console.CursorVisible = false;
-            Console.Title = "의영이의 소코반";
-            Console.BackgroundColor = ConsoleColor.Black; //배경색
-            Console.ForegroundColor = ConsoleColor.Cyan; //글꼴색
+            Console.Title ="의영이의 소코반";
+            Console.BackgroundColor = ConsoleColor.Black;
+            Console.ForegroundColor = ConsoleColor.DarkYellow;
+
             Console.Clear();
 
-            //플레이어 좌표
-            int playerX = 0;
-            int playerY = 0;
-             
+            int PlayerX = 0;
+            int PlayerY = 0;
+            int Speed = 1;
+
+            int Score = 0;
+
+            //아이템 위치
+            Random rd = new Random();
+            int itemX = rd.Next(0, Console.BufferWidth);
+            int itemY = rd.Next(0, Console.BufferHeight);
+
             while (true)
             {
-
-                //창 초기화 시 커서가 다시 보이므로 초기화 해주기
-                Console.CursorVisible = false;
-                // Render
-
-                //방향키 입력데이터 가져오기
-                //keyinfo.key --> 입력 키
-                //keyinfo.Modifiers --> ctrl, alt, shift (키를 누르면서 다른 키를 눌렀을 때 값이 나오지만 누르지 않을 경우 0)
-                
+                //키 입력
                 ConsoleKeyInfo keyinfo = Console.ReadKey();
                 Console.Clear();
 
-                switch (keyinfo.Key)
+                Console.SetCursorPosition(itemX, itemY);
+                Console.Write("!★!");
+
+                //shift 입력 시 스피드 
+                if (keyinfo.Modifiers == ConsoleModifiers.Shift)
                 {
-                    case ConsoleKey.A:
-                    case ConsoleKey.LeftArrow:
-                        if (playerX > 0)
-                            playerX--;
-                        break;
-                    case ConsoleKey.D:
-                    case ConsoleKey.RightArrow:
-                        if(playerX <short.MaxValue) playerX++;
-                        break;
-                    case ConsoleKey.W:
-                    case ConsoleKey.UpArrow:
-                        if (playerY > 0)
-                            playerY--; break;
-                    case ConsoleKey.S:
-                    case ConsoleKey.DownArrow:
-                        if (playerY < short.MaxValue)
-                            playerY++;
-                        break;
-                    default:
-                        break;
+                    Speed = 3;
+                }
+                else
+                {
+                    Speed = 1;
                 }
 
-
-                ////커서 옮기기 (이동좌표로 이동후 플레이어 출력)
-                Console.SetCursorPosition(playerX, playerY);
-                Console.Write("PLAYER") ;
-
-                // ProcessInput
-                if(keyinfo.Key== ConsoleKey.LeftArrow )
+                //이동
+                if (keyinfo.Key == ConsoleKey.LeftArrow || keyinfo.Key == ConsoleKey.A)
                 {
-
+                    if (PlayerX > 0)
+                        PlayerX -= Speed;
                 }
-                // Update
+                if (keyinfo.Key == ConsoleKey.RightArrow || keyinfo.Key == ConsoleKey.D)
+                {
+                    if (PlayerX < Console.BufferWidth - Speed)
+                        PlayerX += Speed;
+                }
+                if (keyinfo.Key == ConsoleKey.UpArrow || keyinfo.Key == ConsoleKey.W)
+                {
+                    if (PlayerY > 0)
+                        PlayerY -= Speed;
+                }
+                if (keyinfo.Key == ConsoleKey.DownArrow || keyinfo.Key == ConsoleKey.S)
+                {
+                    if (PlayerY < Console.BufferHeight - Speed)
+                        PlayerY += Speed;
+                }
+
+                if (PlayerX == itemX && PlayerY == itemY)
+                {
+                    Console.Clear();
+                    Score++;
+                    itemX = rd.Next(0, Console.BufferWidth);
+                    itemY = rd.Next(0, Console.BufferHeight);
+                }
+
+                Console.SetCursorPosition(PlayerX, PlayerY);
+                Console.Write($"({Score})")
             }
-
 
         }
     }
