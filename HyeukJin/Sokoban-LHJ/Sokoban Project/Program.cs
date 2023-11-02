@@ -25,9 +25,8 @@ namespace Sokoban
             Console.Clear();
 
             int playerX = 10;
-            int playerY = 20;
+            int playerY = 10;
 
-            int cnt = 0;
 
             Direction playerDirection = Direction.None;
 
@@ -36,20 +35,21 @@ namespace Sokoban
             int isBoxOnGoal3 = 0;
 
 
-            int[] boxX = new int[3] { 5, 7, 9 };
+            int[] boxX = new int[3] { 4, 6, 9 };
             int[] boxY = new int[3] { 5, 7, 9 };
 
-            int[] wallPositionX = new int[5] { 8, 9, 13, 5, 10 };
-            int[] wallPositionY = new int[5] { 8, 1, 6, 9, 3 };
+            int[] wallPositionX = new int[56] { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 11, 11,
+            11, 11, 11, 11, 11, 11, 11 ,11,1,2,3,4,5,6,7,8,9,10,3,4,5,8,9,10,2,3,4,5,5,5,7,7,7 };
+            int[] wallPositionY = new int[56] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,2,3,4,5,
+                6,7,8,9,10,11,11,11,11,11,11,11,11,11,11,11,8,8,8,5,5,5,3,3,3,7,6,5,7,6,5 };
 
-            int[] goalPositionX = new int[3] { 15, 8, 2 };
-            int[] goalPositionY = new int[3] { 15, 4, 5 };
+            int[] goalPositionX = new int[3] { 3, 8, 7 };
+            int[] goalPositionY = new int[3] { 2, 4, 8 };
 
             int[] newboxX = new int[3] { 0, 0, 0};
             int[] newboxY = new int[3] { 0, 0, 0};
 
-            int[] preboxX = new int[3] { 0, 0, 0 };
-            int[] preboxY = new int[3] { 0, 0, 0 };
+
 
             while (true)
             {
@@ -57,7 +57,7 @@ namespace Sokoban
                 Console.Clear();
                 Console.CursorVisible = false;
 
-                cnt = 0;
+               
 
                 Console.SetCursorPosition(playerX, playerY);
                 ConsoleColor prevColor = Console.ForegroundColor;
