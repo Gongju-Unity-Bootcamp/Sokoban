@@ -6,6 +6,8 @@ namespace Sokobanhyeok
 {
     enum Direction
     {
+
+        // 0 : none, 1 : Left, 2 : Right, 3 : Up, 4 : Down
         None, Left, Right, Up, Down
     }
     internal class Program
@@ -25,8 +27,13 @@ namespace Sokobanhyeok
             int boxX = 1;
             int boxY = 1;
 
-            // 0 : none, 1 : Left, 2 : Right, 3 : Up, 4 : Down
-            
+            int wallX = 4;
+            int wallY = 4;
+
+            int goalX = 6;
+            int goalY = 6;
+
+            Direction playerDirection = Direction.None;
 
             while (true)
             {
@@ -34,13 +41,17 @@ namespace Sokobanhyeok
                 Console.Clear();
                 Console.CursorVisible = false;
                 
-                // player 생성 : playerX, playerY
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("O");
 
-                // Box 생성 : boxX, boxY
                 Console.SetCursorPosition(boxX, boxY);
                 Console.Write("X");
+
+                Console.SetCursorPosition(wallX, wallY);
+                Console.Write("#");
+
+                Console.SetCursorPosition(goalX, goalY);
+                Console.Write("G");
                 
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
 
@@ -51,7 +62,8 @@ namespace Sokobanhyeok
                 int newBoxX = boxX;
                 int newBoxY = boxY;
 
-                Direction playerDirection = Direction.None;
+
+                playerDirection = Direction.None;
 
                 // 플레이어가 콘솔 화면을 이동한다.
                 if (keyInfo.Key == ConsoleKey.LeftArrow)
@@ -100,6 +112,10 @@ namespace Sokobanhyeok
                             break;
                     }
                 }
+                if (wallX == newPlayerX && wallY == newPlayerY || wallX == newBoxX && wallY == newBoxY)
+                {
+                    continue;
+                }
 
                 // newPlayer Console 화면
                 if (0 <= newPlayerX && newPlayerX < Console.BufferWidth)
@@ -121,6 +137,11 @@ namespace Sokobanhyeok
                     boxY = newBoxY;
                 }
 
+                if (boxX == goalX && boxY == goalY)
+                {
+                    break;
+                }
+
                 // Shift 빠른 이동 구현 중..
                 // if (keyInfo.Modifiers == ConsoleModifiers.Shift && keyInfo.Key == ConsoleKey.LeftArrow)
                 // {
@@ -131,6 +152,8 @@ namespace Sokobanhyeok
                 //     newPlayerX += 5;
                 // }
             }
+            Console.Clear();
+            Console.WriteLine("축하합니다. 클리어");
         }
     }
 }
