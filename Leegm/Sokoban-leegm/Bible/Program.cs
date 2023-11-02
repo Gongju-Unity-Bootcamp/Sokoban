@@ -1,18 +1,18 @@
 ﻿using System;
 using System.Net.Sockets;
-enum Direction
-{
-    None,
-    Left,
-    Right,
-    Up,
-    Down
- }
 
 namespace Bible
 {
     internal class Program
     {
+        enum Direction
+        {
+            None,
+            Left,
+            Right,
+            Up,
+            Down
+        }
 
         static void Main()
         {
@@ -24,8 +24,8 @@ namespace Bible
             Console.Clear();                                    
 
             // 플레이어
-            int playerX = 10;
-            int playerY = 5;
+            int playerX = 0;
+            int playerY = 0;
             // int speed = 1;
 
             // 박스
@@ -33,10 +33,14 @@ namespace Bible
             int boxY = 7;
 
             // 골~
-            int goalX = 30;
-            int goalY = 30;
+            int wallX = 10;
+            int wallY = 10;
+
+            int goalX = 5;
+            int goalY = 5;
 
             Direction playerDirection = Direction.None;
+            
 
             while (true)
             {
@@ -51,6 +55,12 @@ namespace Bible
                 // 박스를 출력한다.
                 Console.SetCursorPosition(boxX, boxY);
                 Console.Write("□");
+
+                Console.SetCursorPosition(wallX, wallY);
+                Console.Write("▣");
+
+                Console.SetCursorPosition(goalX, goalY);
+                Console.Write("⊙");
 
                 // ---------------------- ProcessInput ----------------------
                 // 유저로부터 입력을 받는다.
@@ -118,6 +128,13 @@ namespace Bible
                     }
                 }
 
+                // 벽
+                if ( wallX == newPlayerX && wallY == newPlayerY ||
+                    wallX == newBoxX && wallY == newBoxY)
+                {
+                    continue;
+                }
+
                 // 박스 유효성
                 if (0 <= newBoxX && newBoxX < Console.BufferWidth)
                 {
@@ -152,7 +169,6 @@ namespace Bible
 
                     }
                 }
-
                 //플레이어 유효성
                 if (0 <= newPlayerX && newPlayerX < Console.BufferWidth)
                 {
@@ -163,32 +179,14 @@ namespace Bible
                     playerY = newPlayerY;
                 }
 
-
-
-
-                /*
-                if (keyInfo.Modifiers == ConsoleModifiers.Control)              
+                // 골~
+                if ( newBoxX == goalX &&  newBoxY == goalY)
                 {
-                    if (keyInfo.Key == ConsoleKey.LeftArrow && playerX > 1)
-                    {
-                        playerX -= 2;
-                    }
-                    if (keyInfo.Key == ConsoleKey.RightArrow && playerX + 2 < Console.BufferWidth)
-                    {
-                        playerX += 2;
-                    }
-                    if (keyInfo.Key == ConsoleKey.UpArrow && playerY > 1)
-                    {
-                        playerY -= 2;
-                    }
-                    if (keyInfo.Key == ConsoleKey.DownArrow && playerY + 2 < Console.BufferHeight)
-                    {
-                        playerY += 2;
-                    }
-                }
-                else 
-                { */
+                    break;
+                }                
             }
+            Console.Clear();
+            Console.WriteLine("ㅊㅊㅊㅊㅊ");
         }
     }
 }
