@@ -1,4 +1,6 @@
 ﻿using System.Data;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 namespace KimSeHyun
 {
@@ -29,11 +31,11 @@ namespace KimSeHyun
             int boxX = 7;
             int boxY = 7;
 
-            int wallX = 8;
-            int wallY = 8;
-
-            int goalX = 15;
-            int goalY = 15;
+            int[] wallPositionX = new int[5] { 8, 9, 13, 5, 10 };
+            int[] wallPositionY = new int[5] { 8, 1, 6, 9, 3 };
+            
+            int[] goalPositionX = new int[3] { 15, 8, 2 };
+            int[] goalPositionY = new int[3] { 15, 4, 5 };
             
             while (true)
             {
@@ -47,14 +49,20 @@ namespace KimSeHyun
                 Console.Write("P");
                 Console.ForegroundColor = prevColor;
 
+                for (int index = 0; index < goalPositionX.Length; ++index)
+                {
+                    Console.SetCursorPosition(goalPositionX[index], goalPositionY[index]);
+                    Console.Write("G");
+                }
+
                 Console.SetCursorPosition(boxX, boxY);
                 Console.Write("B");
 
-                Console.SetCursorPosition(wallX, wallY);
-                Console.Write("#");
-
-                Console.SetCursorPosition(goalX, goalY);
-                Console.Write("G");
+                for (int index = 0; index < wallPositionX.Length; ++index)
+                {
+                    Console.SetCursorPosition(wallPositionX[index], wallPositionY[index]);
+                    Console.Write("#");
+                }
 
                 // ------------------------------ ProcessInput ---------------------------
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
@@ -117,8 +125,18 @@ namespace KimSeHyun
                 }
 
                 // 벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다. => (벽의 좌표) != (박스의 좌표) && (벽의 좌표) != (플레이어의 좌표)
-                if (wallX == newPlayerX && wallY == newPlayerY ||
-                    wallX == newBoxX && wallY == newBoxY)
+                bool isCollidedToWall = false;
+                for (int index = 0; index < wallPositionX.Length; ++index)
+                {
+                    if (wallPositionX[index] == newPlayerX && wallPositionY[index] == newPlayerY ||
+                    wallPositionX[index] == newBoxX && wallPositionY[index] == newBoxY)
+                    {
+                        isCollidedToWall = true;
+                        break;
+                    }
+                }
+
+                if (isCollidedToWall)
                 {
                     continue;
                 }
@@ -136,10 +154,10 @@ namespace KimSeHyun
                 boxX = newBoxX;
                 boxY = newBoxY;
 
-                if (boxX == goalX && boxY == goalY)
-                {
-                    break;
-                }
+                //if (boxX == goalX && boxY == goalY)
+                //{
+                //    break;
+                //}
             }
 
             Console.Clear();
