@@ -4,8 +4,17 @@ namespace SokoBanWooJeong
 {
     internal class Program
     {
+        enum Direction
+        {
+            None,
+            Left,
+            Right,
+            Up,
+            Down
+        }
         static void Main()
         {
+            // 콘솔 창 꾸미기
             Console.ResetColor();
             Console.CursorVisible = false;
             Console.Title = "세현전도사";
@@ -13,81 +22,173 @@ namespace SokoBanWooJeong
             Console.ForegroundColor = ConsoleColor.Blue;
             Console.Clear();
 
+
+            // 박스의 기능 : 플레이어와 충돌했을 때(= 좌표가 같다), 플레이어가 이동한 방향(??? > 우리가 설정)으로 박스도 한 칸 이동한다.
+            // 우리가 알고 있는 데이터 : 플레이어 좌표, 박스 좌표
             int playerX = 10;
             int playerY = 5;
 
-            int[,] portal = new int[,] { { 5, 10 }, { 15, 15 } };
+            // 플레이어가 이동할 방향의 데이터
+            Direction playerDirection = Direction.None;
+
+            int boxX = 7;
+            int boxY = 7;
+
+            // 벽의 좌표 => 벽의 기능
+            int[] wallPositonX = new int[5] { 8, 9, 13, 5, 10 };
+            int[] wallPositonY = new int[5] { 3, 6, 11, 14, 15 };
+
+            // goal의 좌표
+
+            int[] goalPositionX = new int[5] { 10, 14, 17, 18, 19 };
+            int[] goalPositionY = new int[5] { 4, 11, 15, 13, 20 };
+            
 
             while (true)
             {
+
                 Console.Clear();
                 Console.CursorVisible = false;
+
+                // 플레이어 위치
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("p");
 
-                Console.SetCursorPosition(portal[0, 0], portal[0, 1]);
-                Console.Write("◎");
+                // 박스 위치
+                Console.SetCursorPosition(boxX, boxY);
+                Console.Write("■");
 
-                Console.SetCursorPosition(portal[1, 0], portal[1, 1]);
-                Console.Write("◎");
+                // 골의 위치
+                for (int i = 0; i < goalPositionX.Length; ++i)
+                {
+                    Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
+                    Console.Write("G");
+                }
 
+
+                // 벽의 위치
+                for (int i = 0; i < wallPositonX.Length; ++i)
+                {
+                    Console.SetCursorPosition(wallPositonX[i], wallPositonY[i]);
+                    Console.Write("#");
+                }
+               
+
+
+                // ===================== procesInput======================
+
+                // 키 호출
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
-                ConsoleKey key = keyInfo.Key;
-                ConsoleModifiers Modifiers = keyInfo.Modifiers;
-                // key.Modifier == ConsoleModifier.Shift
+                ConsoleKey key = keyInfo.Key;  // 참고 : key.Modifier == ConsoleModifier.Shift
 
-                if (keyInfo.Key == ConsoleKey.LeftArrow && playerX > 0)
+                // ======================= Update =========================
+
+
+                // 0. ------- 콘솔 벽 기능 검증을 위해 새로 선언 ----------
+
+                int newPlayerX = playerX;
+                int newPlayerY = playerY;
+
+
+                // 1. -------------키 작성 (기능만 작성)-------------------
+
+                if (keyInfo.Key == ConsoleKey.LeftArrow)
                 {
-                    playerX -= 1;
+                    newPlayerX -= 1;
+                    playerDirection = Direction.Left;
                 }
-                if (keyInfo.Key == ConsoleKey.RightArrow && Console.BufferWidth > playerX + 2)
+                if (keyInfo.Key == ConsoleKey.RightArrow)
                 {
-                    playerX += 1;
+                    newPlayerX += 1;
+                    playerDirection = Direction.Right;
                 }
-                if (keyInfo.Key == ConsoleKey.UpArrow && playerY > 0)
+                if (keyInfo.Key == ConsoleKey.UpArrow)
                 {
-                    playerY -= 1;
+                    newPlayerY -= 1;
+                    playerDirection = Direction.Up;
                 }
-                if (keyInfo.Key == ConsoleKey.DownArrow && Console.BufferHeight > playerY + 1)
+                if (keyInfo.Key == ConsoleKey.DownArrow)
                 {
-                    playerY += 1;
+                    newPlayerY += 1;
+                    playerDirection = Direction.Down;
                 }
-                if (keyInfo.Modifiers == ConsoleModifiers.Shift && Console.BufferHeight > playerY +1)
+
+                // 1-1. 플레이이와 박스가 충돌했을 때 => (플레이어 좌표) == (박스 좌표)
+                int newBoxX = boxX; // newPlayerX가 임시 데이터니까 newBoxX를 만들어야 기능이 출동하지 않는다.
+                int newBoxY = boxY;
+
+                if (newPlayerX == newBoxX && newPlayerY == newBoxY)
                 {
-                    playerX += 10;
-                    Thread.Sleep(500);
+                    switch (playerDirection)
+                    {
+                        case Direction.Left:           //left
+                            newBoxX -= 1;
+                            break;
+                        case Direction.Right:          //Right
+                            newBoxX += 1;
+                            break;
+                        case Direction.Up:             //up
+                            newBoxY -= 1;
+                            break;
+                        case Direction.Down:           //down
+                            newBoxY += 1;
+                            break;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine($"잘못된 방향 데이터입니다. 실제 데이터는 {playerDirection}");
+                            Environment.Exit(0);
+                            break;
+                    }
                 }
-                if (playerX == portal[0, 0] && playerY == portal[0, 1]){
-                    playerX += 15;
-                }
-                if (playerX == portal[1, 0] && playerY == portal[1, 1])
+
+                // 2. ===== 콘솔 창 벽 막아주기 (기능 검증) ====
+
+                // 벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다.
+                // => (벽의 좌표) != (박의 좌표) && (벽의 좌표) != (플레이어의 좌표)
+                // => 벽의 기능은 플레이어와 박스가 움직인 후에 작동되어야 한다. (=> 움직인 후 부딪혀서 벽이 기능하기 때문)
+
+                bool isCollidedToWall = false;
+
+                for (int i = 0; i < wallPositonX.Length; ++i)
                 {
-                    playerY -= 10;
+                    if (wallPositonX[i] == newPlayerX && wallPositonY[i] == newPlayerY || wallPositonX[i] == newBoxX && wallPositonY[i] == newBoxY)
+                    {
+                        isCollidedToWall = true;
+                        break;
+                    }
                 }
-            } //포탈 위치와 플레이어 위차가 같을 때 즉, 플레이어가 포탈 위에 올랐을 때 어디로 이동한다.
+
+                if (isCollidedToWall)
+                {
+                    continue;
+                }
+
+                // 콘솔 안에서 기능하도록
+                if (0 <= newPlayerX && newPlayerX < Console.BufferWidth) // 왼쪽 && 오른쪽
+                {
+                    playerX = newPlayerX;
+                }
+                if (0 <= newPlayerY && newPlayerY < Console.BufferHeight) // 위 && 아래
+                {
+                    playerY = newPlayerY;
+                }
+                                                                             
+                boxX = newBoxX;
+                boxY = newBoxY;
+
+                // goal 목표지점
+                for (int i = 0; i < goalPositionX.Length; ++i)
+                {
+                    if (newBoxX == goalPositionX[i] && newBoxY == goalPositionY[i])
+                    {
+                        break;
+                    }
+                }
+            }
+
+            Console.Clear();
+            Console.Write("축하합니다. 소코반을 깼습니다.");
         }
     }
 }
 
-
-//=========배열 증명=========
-
-//using System;
-
-//namespace SokoBanWooJeong
-//{
-//    internal class Program
-//    {
-//        static void Main()
-//        {
-
-//            int[,] portal = new int[,] { { 5, 10 }, { 15, 15 } };
-
-//                Console.SetCursorPosition(portal[0, 0], portal[0, 1]);
-//                Console.Write($"portal[0,0] = {portal[0, 0]}\nportal[0,1] = {portal[0, 1]}");
-
-//                Console.SetCursorPosition(portal[1, 0], portal[1, 1]);
-//                Console.Write("◎");
-//        }
-//    }
-//}
