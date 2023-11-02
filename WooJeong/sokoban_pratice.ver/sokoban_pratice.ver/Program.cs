@@ -52,12 +52,13 @@ namespace SokoBanWooJeong
                 {
                     playerY += 1;
                 }
-                if (keyInfo.Modifiers == ConsoleModifiers.Shift && Console.BufferHeight > playerY +1)
+                if (keyInfo.Modifiers == ConsoleModifiers.Shift && Console.BufferHeight > playerY + 1)
                 {
                     playerX += 10;
                     Thread.Sleep(500);
                 }
-                if (playerX == portal[0, 0] && playerY == portal[0, 1]){
+                if (playerX == portal[0, 0] && playerY == portal[0, 1])
+                {
                     playerX += 15;
                 }
                 if (playerX == portal[1, 0] && playerY == portal[1, 1])
