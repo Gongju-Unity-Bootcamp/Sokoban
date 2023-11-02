@@ -30,15 +30,17 @@ namespace sokoban
             Direction playerDirection = Direction.None;
 
             //벽
-            int wallX = 5;
-            int wallY = 5;
+            int[] wallPositionX = {11,12,13,14,15};
+            int[] wallPositionY = {11,12,13,14,15};
+            //int wallX = 5;
+            //int wallY = 5;
 
             //박스 좌표
             int boxX = 7;
             int boxY = 7;
 
-            int goalX = 9;
-            int goalY = 9;
+            int[] goalPositionX = {9,22,15};
+            int[] goalPositionY = {9,22,20};
 
             while(true)
             {
@@ -52,16 +54,25 @@ namespace sokoban
                 Console.Write("I");
 
                 //벽 출력
-                Console.SetCursorPosition(wallX, wallY);
-                Console.Write("#");
-
-                //골 지점
-                Console.SetCursorPosition(goalX, goalY);
-                Console.Write("G");
+                for(int i = 0; i < wallPositionX.Length; i++)
+                {
+                    Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
+                    Console.Write("#");
+                }
 
                 //박스 출력
                 Console.SetCursorPosition(boxX, boxY);
                 Console.Write("@");
+
+                //골 지점\
+                for(int i = 0; i < goalPositionX.Length; i++)
+                {
+                    Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
+                    Console.Write("G");
+                }
+                
+
+                
                 
 
                 //----------processInput-----------
@@ -72,12 +83,7 @@ namespace sokoban
                 //Console.WriteLine($"입력한 키: {keyInfo.Key}");
                 //Console.WriteLine($"입력한 한정자: {keyInfo.Modifiers}");
 
-                //벽 충돌
-                if (wallX == playerX && wallY == playerY || wallX == boxX && wallY == boxY)
-                {
-                    continue;
-                }
-
+                //플레이어 이동
                 if (key == ConsoleKey.LeftArrow) {
                     // playerX -= 1; //왼쪽으로 한 칸 이동,, 창 경계 지정x
                     playerX = (int)Math.Max(0, playerX -1);
@@ -104,8 +110,47 @@ namespace sokoban
                     playerDirection = Direction.Down;
                 }
 
+                /**벽 충돌
+                
+                    if (wallPositionX[i] == playerX && wallPositionY[i] == playerY || wallPositionX[i] == boxX && wallPositionY[i] == boxY)
+                    {
+                        continue;
+                    }
+                }
+                **/
+
+                //플레이어, 벽 충돌
+                for (int i = 0; i < wallPositionX.Length; i++)
+                {
+                    if (playerX == wallPositionX[i] && playerY == wallPositionY[i])
+                    {
+                        switch (playerDirection)
+                        {
+                            case Direction.Left:
+                                playerX = wallPositionX[i] + 1;
+                                break;
+
+                            case Direction.Right:
+                                playerX = wallPositionX[i] - 1;
+                                break;
+
+                            case Direction.Up:
+                                playerY = wallPositionY[i] + 1;
+                                break;
+
+                            case Direction.Down:
+                                playerY = wallPositionY[i] - 1;
+                                break;
+
+                            default:
+                                Console.WriteLine("잘못된 데이터입니다.");
+                                break;
+                        }
+                    }
+                }
+               
                 //플레이어, 박스 충돌 시 박스는 플레이어가 이동한 방향으로 한 칸 이동
-                if(playerX == boxX && playerY == boxY){
+                if (playerX == boxX && playerY == boxY){
                     switch(playerDirection){
                         case Direction.Left:
                             boxX = Math.Max(0, boxX -1);
@@ -135,13 +180,53 @@ namespace sokoban
                     }
                 }
 
-                if(boxX == goalX && boxY == goalY)
+                //벽, 박스 충돌
+                for (int i = 0; i < wallPositionX.Length; i++)
                 {
-                    break;
+                    if (boxX == wallPositionX[i] && boxY == wallPositionY[i])
+                    {
+                        switch (playerDirection)
+                        {
+                            case Direction.Left:
+                                boxX = wallPositionX[i] + 1;
+                                playerX = boxX + 1;
+                                break;
+
+                            case Direction.Right:
+                                boxX = wallPositionX[i] - 1;
+                                playerX = boxX - 1;
+                                break;
+
+                            case Direction.Up:
+                                boxY = wallPositionY[i] + 1;
+                                playerY = boxY + 1;
+                                break;
+
+                            case Direction.Down:
+                                boxY = wallPositionY[i] - 1;
+                                playerY = boxY - 1;
+                                break;
+
+                            default:
+                                Console.WriteLine("잘못된 데이터입니다.");
+                                break;
+                        }
+                    }
                 }
+
+                /**
+                for (int i = 0; i < goalPositionX.Length; i++)
+                {
+                    if (boxX == goalPositionX[i] && boxY == goalPositionY[i])
+                    {
+                        break;
+                    }
+                }
+                **/
+                Console.Clear();
+                Console.WriteLine("성공");
             }
-            Console.Clear();
-            Console.WriteLine("성공");
+            
         }
     }
 }
