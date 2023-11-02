@@ -36,8 +36,17 @@ class Program
         int boxX = 7;
         int boxY = 7;
 
+        int wallX = 8;
+        int wallY = 8;
+
+        int goalX = 12;
+        int goalY = 12;
+
+        //int flag = 0;
+
         while (true)
         {
+            /// Render
             Console.Clear();
             Console.CursorVisible = false;
 
@@ -47,23 +56,28 @@ class Program
             Console.SetCursorPosition(boxX, boxY);
             Console.Write("▲");
 
-            Console.SetCursorPosition(10, 10);
-            Console.Write("△");
+            Console.SetCursorPosition(wallX, wallY);
+            Console.Write("○");
 
-            Console.SetCursorPosition(4, 6);
-            Console.Write("△");
-
-            Console.SetCursorPosition(17, 2);
+            Console.SetCursorPosition(goalX, goalY);
             Console.Write("△");
 
 
+            //Process Input
             //key 입력 값 받기
             ConsoleKeyInfo keyInfo = Console.ReadKey();
             ConsoleKey key = keyInfo.Key;
             ConsoleModifiers modifiers = keyInfo.Modifiers;
 
+            //Update
             int newPlayerX = playerPos[0];
             int newPlayerY = playerPos[1];
+
+            //box
+            //플레이어와 박스가 충돌했을 때, 박스는 플레이어가 이동한 방향으로 한 칸 이동한다.
+            int newBoxX = boxX;
+            int newBoxY = boxY;
+
 
             if (key == ConsoleKey.A || key == ConsoleKey.LeftArrow)
             {
@@ -89,11 +103,37 @@ class Program
                 playerDirection = Direction.Down;
             }
 
-            //Portal1
-            if (playerPos[0] == portalPos[0, 0] && playerPos[1] == portalPos[0, 1])
+            if (newPlayerX == newBoxX && newPlayerY == newBoxY)
             {
-                newPlayerX = portalPos[0, 0] + 1;
+                switch (playerDirection)
+                {
+                    case Direction.Left: //left
+                        newBoxX -= 1;
+                        break;
+                    case Direction.Right: //right
+                        newBoxX += 1;
+                        break;
+                    case Direction.Up: //Up
+                        newBoxY -= 1;
+                        break;
+                    case Direction.Down: //Down
+                        newBoxY += 1;
+                        break;
+                    default:
+                        Console.Clear();
+                        Console.WriteLine($"Wrong direction data!\nPlayer Direction: {playerDirection}");
+                        Environment.Exit(1);
+                        break;
+
+                        ;
+                }
             }
+
+
+            //벽 기능: 벽의 위치에는 어떤 오브젝트도 위치할 수 없다. => (벽의 좌표) != (박스의 좌표) && (벽의 좌표) != (플레이어 좌표)
+            if (wallX == newPlayerX && wallY == newPlayerY || wallX == newBoxX && wallY == newBoxY)
+                continue;
+
 
             if (0 <= newPlayerX && newPlayerX < Console.BufferWidth)
             {
@@ -105,6 +145,25 @@ class Program
                 playerPos[1] = newPlayerY;
             }
 
+            if (0 <= newBoxX && newBoxX < Console.BufferWidth)
+            {
+                boxX = newBoxX;
+            }
+
+            if (0 <= newBoxY && newBoxY < Console.BufferHeight)
+            {
+                boxY = newBoxY;
+            }
+
+
+            if (boxX == goalX && boxY == goalY)
+            {
+                Thread.Sleep(150);
+                Console.SetCursorPosition(15, 15);
+                Console.WriteLine("Congratulation! You clear this stage!");
+                break;
+            }
+
             if (key == ConsoleKey.R)
             {
                 playerPos[0] = 0;
@@ -112,59 +171,6 @@ class Program
                 boxX = 7;
                 boxY = 7;
             }
-
-            //Portal2
-            if (playerPos[0] == 4 && playerPos[1] == 6)
-            {
-                Thread.Sleep(150);
-                playerPos[0] = transPos[1, 0];
-                playerPos[1] = transPos[1, 1];
-            }
-
-            //Portal3
-            if (playerPos[0] == 17 && playerPos[1] == 2)
-            {
-                Thread.Sleep(150);
-                playerPos[0] = transPos[2, 0];
-                playerPos[1] = transPos[2, 1];
-            }
-
-            //box
-            //플레이어와 박스가 충돌했을 때, 박스는 플레이어가 이동한 방향으로 한 칸 이동한다.
-            int newBoxX = boxX;
-            int newBoxY = boxY;
-
-            if (playerPos[0] == newBoxX && playerPos[1] == newBoxY)
-            {
-                switch (playerDirection)
-                {
-                    case Direction.Left: //left
-                        newBoxX = Math.Clamp(newBoxX - 1, 0, Console.BufferWidth - 1);
-                        newPlayerX = newBoxX + 1;
-                        break;
-                    case Direction.Right: //right
-                        newBoxX = Math.Clamp(newBoxX + 1, 0, Console.BufferWidth - 1);
-                        newPlayerX = newBoxX - 1;
-                        break;
-                    case Direction.Up: //Up
-                        newBoxY = Math.Clamp(newBoxY - 1, 0, Console.BufferHeight - 1);
-                        newPlayerY = newBoxY + 1;
-                        break;
-                    case Direction.Down: //Down
-                        newBoxY = Math.Clamp(newBoxY + 1, 0, Console.BufferHeight - 1);
-                        newPlayerY = newBoxY - 1;
-                        break;
-                    default:
-                        Console.Clear();
-                        Console.WriteLine($"Wrong direction data!\nPlayer Direction: {playerDirection}");
-                        Environment.Exit(1);
-                        break;
-                }
-             
-            }
-
-            boxX = newBoxX;
-            boxY = newBoxY;
 
             if (key == ConsoleKey.Escape)
                 return;
