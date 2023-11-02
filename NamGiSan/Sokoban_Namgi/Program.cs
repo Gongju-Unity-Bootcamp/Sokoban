@@ -6,6 +6,10 @@ namespace Sokoban
     {
         static void Main(string[] args)
         {
+            Console.WriteLine($"생성할 오브젝트 갯수 >> ");
+            int num = int.Parse(Console.ReadLine());
+
+
             // 초기 세팅     
             Console.ResetColor();                               //컬러를 초기화한다.
             Console.CursorVisible = false;                      // 커서를 숨긴다.
@@ -19,21 +23,31 @@ namespace Sokoban
             int playerY = 1;
             int playerDirection = 0;                            // 0 : None, 1 : left, 2 : right, 3 : up, 4 : down
 
-            // 박스 정보
-            int boxX = 7;
-            int boxY = 7;
-
-            // 도착장소 정보
-            int goalX = 30;
-            int goalY = 13;
-
             // 맵 정보
             const int minMapX = 0;
             const int minMapY = 0;
             const int maxMapX = 25;
             const int maxMapY = 21;
 
+            // 박스 정보
+            // 랜덤 위치 생성
 
+            int[] boxsX = new int[num];
+            int[] boxsY = new int[num];
+
+            Random ran = new Random();
+            for(int i = 0; i < num; i++)
+            {
+                int X = ran.Next(2, maxMapX - 2);
+                int Y = ran.Next(2, maxMapY - 2);
+
+                boxsX[i] = X;
+                boxsY[i] = Y;
+            }
+            
+            // 도착장소 정보
+            int goalX = 24;
+            int goalY = 10;
 
 
             while (true)
@@ -66,8 +80,11 @@ namespace Sokoban
                 Console.Write("◎");
 
                 // 박스 출력
-                Console.SetCursorPosition(boxX, boxY);
-                Console.Write("★");
+                for(int i = 0; i < num; i ++)
+                {
+                    Console.SetCursorPosition(boxsX[i], boxsY[i]);
+                    Console.Write("★");
+                }
 
                 // 도착장소 출력
                 Console.SetCursorPosition(goalX, goalY);
@@ -113,86 +130,91 @@ namespace Sokoban
                 if (Key == ConsoleKey.DownArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerY += 3;  //아래
                 */
 
-
-                // 박스의 이동
-                if(playerX == boxX && playerY == boxY)
+                for(int i = 0; i < num; i ++)
                 {
-                   switch(playerDirection)
+                    // 박스의 이동
+                    if (playerX == boxsX[i] && playerY == boxsY[i])
                     {
-                        case 1: // 왼쪽
-                            if (minMapX < boxX)
-                            {
-                                boxX--;
-
-                                // 박스가 왼쪽 벽에 닿았을 떄
-                                if(boxX == minMapX)
+                        switch (playerDirection)
+                        {
+                            case 1: // 왼쪽
+                                if (minMapX < boxsX[i])
                                 {
-                                    boxX = minMapX + 1;
-                                    playerX = boxX + 1;
+                                    boxsX[i]--;
+
+                                    // 박스가 왼쪽 벽에 닿았을 떄
+                                    if (boxsX[i] == minMapX)
+                                    {
+                                        boxsX[i] = minMapX + 1;
+                                        playerX = boxsX[i] + 1;
+                                    }
+                                    
                                 }
-                            }
-                            break;
+                                break;
 
-                        case 2: // 오른쪽
-                            if (boxX <= (maxMapX * 2) - 2)
-                            {
-                                boxX++;
-
-                                // 박스가 오른쪽 벽에 닿았을 떄
-                                if (boxX == (maxMapX * 2) - 2)
+                            case 2: // 오른쪽
+                                if (boxsX[i] <= (maxMapX * 2) - 2)
                                 {
-                                    boxX = (maxMapX * 2) - 3;
-                                    playerX = boxX - 1;
+                                    boxsX[i]++;
+
+                                    // 박스가 오른쪽 벽에 닿았을 떄
+                                    if (boxsX[i] == (maxMapX * 2) - 2)
+                                    {
+                                        boxsX[i] = (maxMapX * 2) - 3;
+                                        playerX = boxsX[i] - 1;
+                                    }
+                                    
                                 }
-                            }
-                            break;
+                                break;
 
-                        case 3: // 위쪽
-                            if(minMapY <= boxY)
-                            {
-                                boxY--;
-
-                                // 박스가 위쪽 벽에 닿았을 떄
-                                if (boxY == minMapY)
+                            case 3: // 위쪽
+                                if (minMapY <= boxsY[i])
                                 {
-                                    boxY = minMapY + 1;
-                                    playerY = boxY +1;
+                                    boxsY[i]--;
+
+                                    // 박스가 위쪽 벽에 닿았을 떄
+                                    if (boxsY[i] == minMapY)
+                                    {
+                                        boxsY[i] = minMapY + 1;
+                                        playerY = boxsY[i] + 1;
+                                    }
+                                    
                                 }
-                            }
-                            break;
+                                break;
 
-                        case 4: // 아래쪽
-                            if(boxY <= maxMapY)
-                            {
-                                boxY++;
-
-                                // 박스가 위쪽 벽에 닿았을 떄
-                                if (boxY == maxMapY)
+                            case 4: // 아래쪽
+                                if (boxsY[i] <= maxMapY)
                                 {
-                                    boxY = maxMapY - 1;
-                                    playerY = boxY - 1;
-                                }
-                            }   
-                            break;
+                                    boxsY[i]++;
 
-                        default:    // 오류처리
-                            Console.Clear();
-                            Console.WriteLine($"잘못된 방향 데이터입니다. 실제 데이터는 {playerDirection}");
-                            Environment.Exit(0);
-                            break;
+                                    // 박스가 위쪽 벽에 닿았을 떄
+                                    if (boxsY[i] == maxMapY)
+                                    {
+                                        boxsY[i] = maxMapY - 1;
+                                        playerY = boxsY[i] - 1;
+                                    }
+                                    
+                                }
+                                break;
+
+                            default:    // 오류처리
+                                Console.Clear();
+                                Console.WriteLine($"잘못된 방향 데이터입니다. 실제 데이터는 {playerDirection}");
+                                Environment.Exit(0);
+                                break;
+                        }
+
+
                     }
-                        
 
-                }
-
-                // 게임 종료
-                if(boxX == goalX && boxY == goalY)
-                {
-                    Console.Clear();
-                    Console.WriteLine($"Game Clear");
-                    Environment.Exit(0);
-                }
-
+                    // 게임 종료
+                    if (boxsX[i] == goalX && boxsY[i] == goalY)
+                    {
+                        Console.Clear();
+                        Console.WriteLine($"Game Clear");
+                        Environment.Exit(0);
+                    }
+                } 
             }
         }
     }
