@@ -47,9 +47,10 @@ namespace Sokoban_Project
 
             //int playerDirection = 0; // 0 : None, 1 : Left, 2 : Right, 3 : Up, 4 : Down
 
-              
-              
-        
+
+            int wallX = 10;
+            int wallY = 10;
+            
 
             while (true)
             {
@@ -57,16 +58,16 @@ namespace Sokoban_Project
 
                 Console.Clear();
        
-                for(int i = 10; i<25; i++)
+                for(int i = wallX; i< 25; i++)
                 {
-                    Console.SetCursorPosition(i, 10);
+                    Console.SetCursorPosition(i, wallY);
                     Console.Write("―");
                     Console.SetCursorPosition(i, 25);
                     Console.Write("―");
                 }
-                for (int i = 10; i < 25; i++)
+                for (int i = wallY; i < 25; i++)
                 {
-                    Console.SetCursorPosition(10, i);
+                    Console.SetCursorPosition(wallX, i);
                     Console.Write("|");
                     Console.SetCursorPosition(25 , i);
                     Console.Write("|");
@@ -78,24 +79,27 @@ namespace Sokoban_Project
                                                   //플레이어를 출력한다.
                 Console.SetCursorPosition(CircleX, CircleY);
                 Console.Write("O");
-                if (boxX == 10)
+                if (boxX == wallX)
                 {
-                    boxX = 11;
+                    boxX = wallX + 1;
+                    playerX += 1;
                 }
-
                 if (boxX == 25)
                 {
                     boxX = 24;
+                    playerX -= 1;
                 }
-                if (boxY == 10)
+                if (boxY == wallY)
                 {
-                    boxY = 11;
+                    boxY = wallY + 1;
+                    playerY += 1;
                 }
                 if( boxY == 25)
                 {
                     boxY = 24;
+                    playerY -= 1;
                 }
-
+               
                 if (boxX == CircleX && boxY == CircleY)
                 {
                     Console.ForegroundColor = ConsoleColor.Yellow;
@@ -110,6 +114,7 @@ namespace Sokoban_Project
                     Console.Write("□");
                 }
                 
+                
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("A");
 
@@ -122,7 +127,7 @@ namespace Sokoban_Project
 
                 // ----------------------------- Update ------------------------------
 
-                if (keyInfo.Key == ConsoleKey.A && playerX > 11)
+                if (keyInfo.Key == ConsoleKey.A && playerX > wallX + 1)
                 {
                     playerX -= 1;
                     playerDirection = Direction.Left;
@@ -133,7 +138,7 @@ namespace Sokoban_Project
                     playerX += 1;
                     playerDirection = Direction.Right;
                 }
-                if (keyInfo.Key == ConsoleKey.W && playerY>11)
+                if (keyInfo.Key == ConsoleKey.W && playerY> wallY + 1)
                 {
                     playerY -= 1;
                     playerDirection = Direction.Up;
@@ -144,13 +149,9 @@ namespace Sokoban_Project
                     playerY += 1;
                     playerDirection = Direction.Down;
                 }
-                if (keyInfo.Key == ConsoleKey.Spacebar)
-                {
-                    playerY = 0;
-                    playerX = 0;
-                }
+             
                 //플레이와 박스가 충돌했을 때, 박스는 플레이어가 이동한 방향으로 한칸 이동한다.
-                if (playerX == boxX && playerY == boxY)
+                if (playerX == boxX && playerY == boxY )
                 {
 
                   
@@ -175,18 +176,25 @@ namespace Sokoban_Project
                             Environment.Exit(0);
                             break;
                     }
-                    
-                        
+
                 }
 
-                
-
+                //벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다 => (벽의 좌표) !=(박스의좌표) && !=(플레이어의 좌표)
+                if(wallX == playerX  && wallY == playerY || wallX == boxY && wallY == boxY)
+                {
+                    continue;
+                }
+                if (boxX == CircleX && boxY == CircleY)
+                {
+                    break;
+                }
 
 
 
             }
 
-
+            Console.Clear();
+            Console.Write("축하합니다. 소코반을 깼습니다.");
 
 
         }
