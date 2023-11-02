@@ -19,88 +19,88 @@ class Sokoban
         Console.Clear();
 
         int playerX = 5;
-        int playerY = 10;
-        int newplayerX = playerX;
-        int newplayerY = playerY;
-        Direction playerDirection = Direction.None;
+        int playerY = 11;
 
         int boxX = 50;
         int boxY = 25;
-        int newboxX = 50;
-        int newboxY = 20;
 
+        Direction playerDirection = Direction.None;
 
+        int[] wallPositionX = new int[5] { 10, 11, 12, 13, 14 };
+        int[] wallPositionY = new int[5] { 10, 11, 12, 13, 14 };
+
+        int GoalX = 70;
+        int GoalY = 5;
 
         while (true)
         {
             Console.Clear();
             Console.CursorVisible = false;
+
             Console.SetCursorPosition(playerX, playerY);
             Console.Write("O");
             Console.SetCursorPosition(boxX, boxY);
             Console.Write("B");
-            Console.SetCursorPosition(newboxX, newboxY);
+
+            for (int index = 0; index < wallPositionX.Length; ++index)
+            {
+                Console.SetCursorPosition(wallPositionX[index], wallPositionY[index]);
+                Console.Write("X");
+
+            }
+
+
+            Console.SetCursorPosition(GoalX, GoalY);
+            Console.Write("G");
 
             ConsoleKeyInfo KeyInfo = Console.ReadKey();
+
+            int newplayerX = playerX;
+            int newplayerY = playerY;
             playerDirection = Direction.None;
-
-
 
             if (KeyInfo.Key == ConsoleKey.UpArrow)
             {
                 newplayerY -= 1;
                 playerDirection = Direction.Up;
             }
-
             if (KeyInfo.Key == ConsoleKey.DownArrow)
             {
                 newplayerY += 1;
                 playerDirection = Direction.Down;
             }
-
             if (KeyInfo.Key == ConsoleKey.LeftArrow)
             {
                 newplayerX -= 1;
                 playerDirection = Direction.Left;
             }
-
             if (KeyInfo.Key == ConsoleKey.RightArrow)
             {
                 newplayerX += 1;
                 playerDirection = Direction.Rigth;
             }
 
-            if (0 < newplayerX && newplayerX < Console.BufferWidth)
-            {
-                playerX = newplayerX;
-            }
-
-            if (0 < newplayerY && newplayerY < Console.BufferHeight)
-            {
-                playerY = newplayerY;
-            }
-
-            if (playerX == boxX && playerY == boxY)
+            int newboxX = boxX;
+            int newboxY = boxY;
+            
+            if (newplayerX == newboxX && newplayerY == newboxY)
             {
                 switch (playerDirection)
                 {
                     case Direction.Left:
-                        boxX -= 1;
+                        newboxX -= 1;
                         break;
 
                     case Direction.Rigth:
-                        boxX += 1;
-                        
+                        newboxX += 1;
                         break;
 
                     case Direction.Up:
-                        boxY -= 1;
-                        
+                        newboxY -= 1;
                         break;
 
                     case Direction.Down:
-                        boxY += 1;
-                        
+                        newboxY += 1;
                         break;
 
                     default:
