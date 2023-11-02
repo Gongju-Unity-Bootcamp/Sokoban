@@ -34,6 +34,8 @@ namespace SokoBanWooJeong
             int boxX = 7;
             int boxY = 7;
 
+            bool isBoxOnGoal = false;
+
             // 벽의 좌표 => 벽의 기능
             int[] wallPositonX = new int[5] { 8, 9, 13, 5, 10 };
             int[] wallPositonY = new int[5] { 3, 6, 11, 14, 15 };
@@ -46,39 +48,52 @@ namespace SokoBanWooJeong
 
             while (true)
             {
+                //-----------------------------Render-------------------------------------
 
                 Console.Clear();
                 Console.CursorVisible = false;
 
                 // 플레이어 위치
                 Console.SetCursorPosition(playerX, playerY);
+                ConsoleColor prevColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Magenta;
                 Console.Write("p");
+                Console.ForegroundColor = prevColor;
 
-                // 박스 위치
-                Console.SetCursorPosition(boxX, boxY);
-                Console.Write("■");
-
-                // 골의 위치
                 for (int i = 0; i < goalPositionX.Length; ++i)
                 {
                     Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
                     Console.Write("G");
                 }
 
+                //박스가 골 위로 올라갔는지 체크
+                if (isBoxOnGoal)
+                {
+                    Console.SetCursorPosition(boxX, boxY);
+                    prevColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Magenta;
+                    Console.Write("■");
+                    Console.ForegroundColor = prevColor;
+                }
+                else
+                {
+                    // 박스 위치
+                    Console.SetCursorPosition(boxX, boxY);
+                    Console.Write("■");
+                }
+
 
                 // 벽의 위치
-                for (int i = 0; i < wallPositonX.Length; ++i)
+                for (int i = 0; i < wallPositonX.Length; ++i) // wallPositonX와 Y와 배열의 길이가 같기 때문에 y를 굳이 쓰지 않아도 된다.
                 {
                     Console.SetCursorPosition(wallPositonX[i], wallPositonY[i]);
                     Console.Write("#");
                 }
-               
-
 
                 // ===================== procesInput======================
 
                 // 키 호출
-                ConsoleKeyInfo keyInfo = Console.ReadKey();
+                ConsoleKeyInfo keyInfo = Console.ReadKey(); //readKey는 키의 정보가 없음 => .key로 불러올 수 있음
                 ConsoleKey key = keyInfo.Key;  // 참고 : key.Modifier == ConsoleModifier.Shift
 
                 // ======================= Update =========================
@@ -92,22 +107,22 @@ namespace SokoBanWooJeong
 
                 // 1. -------------키 작성 (기능만 작성)-------------------
 
-                if (keyInfo.Key == ConsoleKey.LeftArrow)
+                if (key == ConsoleKey.LeftArrow)
                 {
                     newPlayerX -= 1;
                     playerDirection = Direction.Left;
                 }
-                if (keyInfo.Key == ConsoleKey.RightArrow)
+                if (key == ConsoleKey.RightArrow)
                 {
                     newPlayerX += 1;
                     playerDirection = Direction.Right;
                 }
-                if (keyInfo.Key == ConsoleKey.UpArrow)
+                if (key == ConsoleKey.UpArrow)
                 {
                     newPlayerY -= 1;
                     playerDirection = Direction.Up;
                 }
-                if (keyInfo.Key == ConsoleKey.DownArrow)
+                if (key == ConsoleKey.DownArrow)
                 {
                     newPlayerY += 1;
                     playerDirection = Direction.Down;
@@ -176,14 +191,20 @@ namespace SokoBanWooJeong
                 boxX = newBoxX;
                 boxY = newBoxY;
 
-                // goal 목표지점
+
+                // 박스를 골에 넣었을 때 색상이 변경
                 for (int i = 0; i < goalPositionX.Length; ++i)
                 {
                     if (newBoxX == goalPositionX[i] && newBoxY == goalPositionY[i])
                     {
+                        isBoxOnGoal = true;
                         break;
                     }
                 }
+                //if (boxX == goalX && boxY == goalY)
+                //{
+                //    break;
+                //}
             }
 
             Console.Clear();
