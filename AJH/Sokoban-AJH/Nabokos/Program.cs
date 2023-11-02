@@ -21,17 +21,25 @@
             Direction playerDirection = Direction.None;    // 0 : None, 1 : Left, 2 : Right, 3 : Up, 4 : Down
 
             // 박스의 기능 : 플레이어와 충돌했을 때, 플레이어가 이동한 방향으로 박스도 한 칸 이동한다.
-            int boxX = 15;
-            int boxY = 9;
             int[] box = { new Random().Next(0, Console.BufferWidth), new Random().Next(0, Console.BufferHeight) };  // 박스의 위치 랜덤으로
 
+            int[] wallPositionX = new int[5];
+            int[] wallPositionY = new int[5];
             // 벽의 위치
-            int wallX = 30;
-            int wallY = 20;
+            for (int i=0; i<wallPositionX.Length; i++)
+            {
+                wallPositionX[i] = new Random().Next(0, Console.BufferWidth);
+                wallPositionY[i] = new Random().Next(0, Console.BufferHeight);
+            }
 
-            int goalX = 25;
-            int goalY = 10;
-            int[] goal = { new Random().Next(0, Console.BufferWidth), new Random().Next(0, Console.BufferHeight) }; //골의 위치 랜덤으로
+            int[] goalX = new int[5];
+            int[] goalY = new int[5];
+
+            for (int i = 0; i < goalX.Length; i++)
+            {
+                goalX[i] = new Random().Next(0, Console.BufferWidth);
+                goalY[i] = new Random().Next(0, Console.BufferHeight);
+            }
 
             while (true)
             {
@@ -43,23 +51,37 @@
                 ConsoleColor prevColor = ConsoleColor.White;
 
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.SetCursorPosition(goal[0], goal[1]);
-                Console.Write("□");
-                Console.SetCursorPosition(goal[0] - 3, goal[1] - 1);
-                Console.Write("I'M GOAL");
+                for(int i=0; i<goalX.Length; i++)
+                {
+                    Console.SetCursorPosition(goalX[i], goalY[i]);
+                    Console.Write("□");
+                }
                 Console.ForegroundColor = prevColor;
 
                 Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.SetCursorPosition(wallX, wallY);
-                Console.Write("▥");
-                Console.SetCursorPosition(wallX - 3, wallY - 1);
-                Console.Write("I'M WALL");
+                for(int i=0; i<wallPositionX.Length; i++)
+                {
+                    Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
+                    Console.Write("▥");
+                }
                 Console.ForegroundColor = prevColor;
 
                 Console.ForegroundColor = ConsoleColor.Black;
                 Console.SetCursorPosition(box[0], box[1]);
                 Console.Write("▣");
                 Console.ForegroundColor = prevColor;
+
+                // 박스가 골에 들어갈 경우 박스의 색상 변경
+                for (int i = 0; i < goalX.Length; i++)
+                {
+                    if (goalX[i] == box[0] && goalY[i] == box[1])
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.SetCursorPosition(box[0], box[1]);
+                        Console.Write("▣");
+                        Console.ForegroundColor = prevColor;
+                    }
+                }
 
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("¶");
@@ -138,36 +160,48 @@
                     }
                 }
 
+                bool isWall = false;
+
                 // 벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다. => (벽의 좌표) != (플레이어 좌표) && (벽의 좌표) != (박스 좌표)
                 // 플레이어가 벽을 향해 이동하려 할 때
-                if ((wallX == newPlayerX && wallY == newPlayerY) || (wallX == newBoxX && wallY == newBoxY))
+                for(int i=0; i<wallPositionX.Length; i++)
                 {
-                    continue;
-                    // 컨티뉴 한 줄로 다 끝나니까 머리가 띵하네..
+                    if ((wallPositionX[i] == newPlayerX && wallPositionY[i] == newPlayerY) || (wallPositionX[i] == newBoxX && wallPositionY[i] == newBoxY))
+                    {
+                        isWall = true;
+                        break;
+                    }
                 }
 
-                int newGoalX = goal[0];
-                int newGoalY = goal[1];
-                
-                // 플레이어가 골을 향해 이동하려 할 때
-                if(newPlayerX == newGoalX && newPlayerY == newGoalY)
+                if (isWall)
                 {
                     continue;
-                    /*switch (playerDirection)
+                }
+
+                int[] newGoalX = new int[5];
+                int[] newGoalY = new int[5];
+
+                for(int i=0; i<newGoalX.Length; i++)
+                {
+                    newGoalX[i] = goalX[i];
+                    newGoalY[i] = goalY[i];
+                }
+
+                bool toGoal = false;
+                
+                // 플레이어가 골을 향해 이동하려 할 때
+                for(int i=0; i<newGoalX.Length; i++)
+                {
+                    if (newPlayerX == newGoalX[i] && newPlayerY == newGoalY[i])
                     {
-                        case Direction.Left:
-                            newPlayerX += 1;
-                            break;
-                        case Direction.Right:
-                            newPlayerX -= 1;
-                            break;
-                        case Direction.Up:
-                            newPlayerY += 1;
-                            break;
-                        case Direction.Down:
-                            newPlayerY -= 1;
-                            break;
-                    }*/
+                        toGoal = true;
+                        break;
+                    }
+                }
+
+                if (toGoal)
+                {
+                    continue;
                 }
 
                 // 플레이어가 박스를 이동하다 박스가 콘솔창의 끝에 도달했을 때
@@ -178,15 +212,6 @@
                 else
                 {
                     continue;
-                    /*switch (playerDirection)
-                    {
-                        case Direction.Left:
-                            newPlayerX += 1;
-                            break;
-                        case Direction.Right:
-                            newPlayerX -= 1;
-                            break;
-                    }*/
                 }
                 if (0 <= newBoxY && newBoxY < Console.BufferHeight)
                 {
@@ -195,15 +220,6 @@
                 else
                 {
                     continue;
-                    /*switch (playerDirection)
-                    {
-                        case Direction.Up:
-                            newPlayerY += 1;
-                            break;
-                        case Direction.Down:
-                            newPlayerY -= 1;
-                            break;
-                    }*/
                 }
 
                 // 플레이어가 콘솔창을 나가지 못하게
@@ -216,10 +232,13 @@
                     playerY = newPlayerY;
                 }
 
-                // 박스가 골에 도달했을 시
-                if (newBoxX == newGoalX && newBoxY == newGoalY)
+                for(int i=0; i<newGoalX.Length; i++)
                 {
-                    break;
+                    // 박스가 골에 도달했을 시
+                    if (newBoxX == newGoalX[i] && newBoxY == newGoalY[i])
+                    {
+                        break;
+                    }
                 }
             }
             Console.Clear();
