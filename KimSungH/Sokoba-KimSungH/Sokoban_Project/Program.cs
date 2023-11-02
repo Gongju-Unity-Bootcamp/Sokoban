@@ -5,7 +5,7 @@
         None = 0,
         Left = 1,
         Right =2,
-        Up = 3,
+        Up = 3, 
         Down =4
     }
     internal class Program
@@ -113,6 +113,7 @@
             //        Console.SetCursorPosition(objectX1, objectY1);
             //        Console.Write("Game Over!");
             //    }
+
             Console.ResetColor();
             Console.CursorVisible = false;
             Console.Title = "I'M God";
@@ -132,17 +133,20 @@
             //int objectX = 50;
             //int objectY = 9;
 
-            Random rand = new Random();
+            //Random rand = new Random();
 
             int boxX = 7;
             int boxY = 7;
 
-            int wallX = 10;
-            int wallY = 10;
+            int[] wallPositionX = new int[5] { 10, 8, 5, 2, 10 };
+            int[] wallPositionY = new int[5] { 6, 2, 3, 1, 9 };
 
-            int goalX = 60;
-            int goalY = 20;
+            int[] goalPositionX = new int[3] { 3, 32, 23 };
+            int[] goalPositionY = new int[3] { 5, 5, 22 };
 
+            int goalCount = goalPositionX.Length;
+            int wallCount = wallPositionX.Length;
+            
 
             while (true)
             {
@@ -156,14 +160,38 @@
                 //Console.SetCursorPosition(objectX, objectY);
                 //Console.Write("@");
 
-                Console.SetCursorPosition(boxX, boxY);
-                Console.Write('B');
+                for (int i = 0; i < goalCount; i++)
+                {
+                    Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
+                    Console.Write("G");
+                }
 
-                Console.SetCursorPosition(wallX, wallY);
-                Console.Write('W');
+                for (int i = 0; i < goalCount; ++i)
+                {
+                    if (boxX == goalPositionX[i] && boxY == goalPositionY[i])
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.SetCursorPosition(boxX, boxY);
+                        Console.Write("B");
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        break;
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(boxX, boxY);
+                        Console.Write('B');
+                    }
+                }
+                
+                
 
-                Console.SetCursorPosition(goalX, goalY);
-                Console.Write("G");
+                for(int i = 0; i < wallCount; i++)
+                {
+                    Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
+                    Console.Write('W');
+                }
+                
+                
 
                 //----------------ProcessInput-------------
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
@@ -231,8 +259,18 @@
                 // 벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다.
                 // 벽 좌표 != 박스 좌표 && 벽 좌표 != 플레이어 좌표
 
-                if (wallX == newPlayerX && wallY == newPlayerY ||
-                wallX == newBoxX && wallY == newBoxY)
+                bool checkWall = false;
+
+                for(int i = 0; i < wallCount; ++i)
+                {
+                    if (wallPositionX[i] == newPlayerX && wallPositionY[i] == newPlayerY ||
+                        wallPositionX[i] == newBoxX && wallPositionY[i] == newBoxY)
+                    {
+                        checkWall = true;
+                        break;
+                    }
+                }
+                if (checkWall) 
                 {
                     continue;
                 }
@@ -279,11 +317,21 @@
                             break;
                     }
                 }
-                if (boxX == goalX && boxY == goalY)
+
+                bool checkGoal = false;
+
+                for(int i = 0; i < goalCount; ++i) 
                 {
-                    break;
+                    if (boxX == goalPositionX[i] && boxY == goalPositionY[i])
+                    {
+                        checkGoal = true;
+                        break;
+                    }
                 }
-                
+                if (checkGoal)
+                {
+                    continue;
+                }             
             }
             Console.Clear();
             Console.WriteLine("축하합니다 클리어입니다.");
