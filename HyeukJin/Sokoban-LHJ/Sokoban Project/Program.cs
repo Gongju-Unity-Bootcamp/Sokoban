@@ -27,11 +27,13 @@ namespace Sokoban
             int playerX = 10;
             int playerY = 20;
 
+            int cnt = 0;
+
             Direction playerDirection = Direction.None;
 
-            bool isBoxOnGoal = false;
-            bool isBoxOnGoal2 = false;
-            bool isBoxOnGoal3 = false;
+            int isBoxOnGoal = 0;
+            int isBoxOnGoal2 = 0;
+            int isBoxOnGoal3 = 0;
 
 
             int[] boxX = new int[3] { 5, 7, 9 };
@@ -55,7 +57,7 @@ namespace Sokoban
                 Console.Clear();
                 Console.CursorVisible = false;
 
-            
+                cnt = 0;
 
                 Console.SetCursorPosition(playerX, playerY);
                 ConsoleColor prevColor = Console.ForegroundColor;
@@ -72,7 +74,7 @@ namespace Sokoban
                 }
                 for (int index = 0; index < boxX.Length; index++)
                 {
-                    if (isBoxOnGoal)
+                    if (isBoxOnGoal == 1)
                     {
                         Console.SetCursorPosition(boxX[0], boxY[0]);
                         prevColor = Console.ForegroundColor;
@@ -85,7 +87,7 @@ namespace Sokoban
                         Console.SetCursorPosition(boxX[0], boxY[0]);
                         Console.Write("B");
                     }
-                    if (isBoxOnGoal2)
+                    if (isBoxOnGoal2 == 1)
                     {
                         Console.SetCursorPosition(boxX[1], boxY[1]);
                         prevColor = Console.ForegroundColor;
@@ -98,7 +100,7 @@ namespace Sokoban
                         Console.SetCursorPosition(boxX[1], boxY[1]);
                         Console.Write("B");
                     }
-                    if (isBoxOnGoal3)
+                    if (isBoxOnGoal3 == 1)
                     {
                         Console.SetCursorPosition(boxX[2], boxY[2]);
                         prevColor = Console.ForegroundColor;
@@ -113,9 +115,9 @@ namespace Sokoban
                     }
                 }
 
-                isBoxOnGoal = false;
-                isBoxOnGoal2 = false;
-                isBoxOnGoal3 = false;
+                isBoxOnGoal = 0;
+                isBoxOnGoal2 = 0;
+                isBoxOnGoal3 = 0;
 
 
                 for (int index = 0; index < wallPositionX.Length; ++index)
@@ -273,25 +275,25 @@ namespace Sokoban
                 {
                     if (boxX[0] == goalPositionX[index] && boxY[0] == goalPositionY[index])
                     {
-                        isBoxOnGoal = true;
+                        isBoxOnGoal = 1;
                     }
                    
                     if(boxX[1] == goalPositionX[index] && boxY[1] == goalPositionY[index])
                     {
-                        isBoxOnGoal2 = true;
+                        isBoxOnGoal2 = 1;
                     }
                  
                     if (boxX[2] == goalPositionX[index] && boxY[2] == goalPositionY[index])
                     {
-                        isBoxOnGoal3 = true;
+                        isBoxOnGoal3 = 1;
                     }
                   
                 }
 
-                //if (boxX == goalX && boxY == goalY)
-                //{
-                //    break;
-                //}
+                if (isBoxOnGoal + isBoxOnGoal2 + isBoxOnGoal3 ==3)
+                {
+                    break;
+                }
             }
 
             Console.Clear();
