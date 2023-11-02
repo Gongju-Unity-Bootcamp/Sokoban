@@ -21,7 +21,8 @@ namespace Bible
             Console.Title = "My Sokonan";
             Console.BackgroundColor = ConsoleColor.DarkBlue;
             Console.ForegroundColor = ConsoleColor.Gray;
-            Console.Clear();                                    
+            Console.Clear();
+            ConsoleColor prevColor = Console.ForegroundColor;
 
             // 플레이어
             int playerX = 0;
@@ -31,13 +32,15 @@ namespace Bible
             // 박스
             int boxX = 7;
             int boxY = 7;
+            bool isBoxOnGoal = false;
 
             // 골~
-            int wallX = 10;
-            int wallY = 10;
+            int[] wallPositionX = new int[5] { 12, 13, 14, 15, 16 };
+            int[] wallPositionY = new int[5] { 12, 12, 12, 12, 12 };
 
-            int goalX = 5;
-            int goalY = 5;
+            int[] goalPositionX = new int[3] { 1, 6, 5};
+            int[] goalPositionY = new int[3] { 2, 4, 3 };
+
 
             Direction playerDirection = Direction.None;
             
@@ -51,16 +54,31 @@ namespace Bible
                 // 플레이어를 출력한다.
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("★");
-
+                // 골 지점을 출력한다.
+                for (int i = 0; i < goalPositionX.Length; ++i)
+                {
+                    Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
+                    Console.Write("⊙");
+                }
                 // 박스를 출력한다.
-                Console.SetCursorPosition(boxX, boxY);
-                Console.Write("□");
-
-                Console.SetCursorPosition(wallX, wallY);
-                Console.Write("▣");
-
-                Console.SetCursorPosition(goalX, goalY);
-                Console.Write("⊙");
+                if (isBoxOnGoal)
+                {
+                    Console.SetCursorPosition(boxX, boxY);
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("◆");
+                    Console.ForegroundColor = prevColor;
+                }
+                else
+                {
+                    Console.SetCursorPosition(boxX, boxY);
+                    Console.Write("◆");
+                }
+                // 벽을 출력한다.
+                for (int i = 0; i < wallPositionX.Length; ++i)
+                {
+                    Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
+                    Console.Write("▣");
+                }
 
                 // ---------------------- ProcessInput ----------------------
                 // 유저로부터 입력을 받는다.
@@ -71,8 +89,6 @@ namespace Bible
                 int newPlayerX = playerX;
                 int newPlayerY = playerY;
 
-                int newBoxX = boxX;
-                int newBoxY = boxY;
 
 
                 // 플레이어 이동
@@ -103,6 +119,8 @@ namespace Bible
                 }
                 // }
 
+                int newBoxY = boxY;
+                int newBoxX = boxX;
                 // 플레이어와 박스가 충돌했을 때, 박스는 플레이어가 이동한 방향으로 한 칸 이동한다.
                 if ( newPlayerX == newBoxX  && newPlayerY == newBoxY ) 
                 {
@@ -129,10 +147,29 @@ namespace Bible
                 }
 
                 // 벽
-                if ( wallX == newPlayerX && wallY == newPlayerY ||
-                    wallX == newBoxX && wallY == newBoxY)
+                bool wallCheck = false;
+                for (int i = 0; i < wallPositionX.Length; i++) 
+                {
+                    if (wallPositionX[i] == newPlayerX && wallPositionY[i] == newPlayerY ||
+                        wallPositionX[i] == newBoxX && wallPositionY[i] == newBoxY)
+                    {
+                        wallCheck = true;
+                        break;
+                    }
+                }
+                if (wallCheck)
                 {
                     continue;
+                }
+                        
+                // 박스 골 위치 채크.
+                for (int i = 0; i < goalPositionX.Length; i++)
+                {
+                    if (boxX == goalPositionX[i] && boxY == goalPositionY[i])
+                    {
+                        isBoxOnGoal = true;
+                        break;
+                    }                  
                 }
 
                 // 박스 유효성
@@ -179,11 +216,11 @@ namespace Bible
                     playerY = newPlayerY;
                 }
 
-                // 골~
-                if ( newBoxX == goalX &&  newBoxY == goalY)
-                {
-                    break;
-                }                
+                // // 골~
+                // if ( newBoxX == goalX &&  newBoxY == goalY)
+                // {
+                //     break;
+                // }                
             }
             Console.Clear();
             Console.WriteLine("ㅊㅊㅊㅊㅊ");
