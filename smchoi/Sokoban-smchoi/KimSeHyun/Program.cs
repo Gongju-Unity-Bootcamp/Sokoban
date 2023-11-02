@@ -13,6 +13,9 @@
 
             int playerX = 10;
             int playerY = 20;
+
+            int boxX = 7;
+            int boxY = 7;
             
             while (true)
             {
@@ -22,6 +25,9 @@
 
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("P");
+
+                Console.SetCursorPosition(boxX, boxY);
+                Console.Write("B");
 
                 // ------------------------------ ProcessInput ---------------------------
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
