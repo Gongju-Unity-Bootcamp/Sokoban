@@ -30,6 +30,7 @@ namespace KimSeHyun
 
             int boxX = 7;
             int boxY = 7;
+            bool isBoxOnGoal = false;
 
             int[] wallPositionX = new int[5] { 8, 9, 13, 5, 10 };
             int[] wallPositionY = new int[5] { 8, 1, 6, 9, 3 };
@@ -55,8 +56,20 @@ namespace KimSeHyun
                     Console.Write("G");
                 }
 
-                Console.SetCursorPosition(boxX, boxY);
-                Console.Write("B");
+                if (isBoxOnGoal)
+                {
+                    Console.SetCursorPosition(boxX, boxY);
+                    prevColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("B");
+                    Console.ForegroundColor = prevColor;
+                }
+                else
+                {
+                    Console.SetCursorPosition(boxX, boxY);
+                    Console.Write("B");
+                }
+                
 
                 for (int index = 0; index < wallPositionX.Length; ++index)
                 {
@@ -153,6 +166,16 @@ namespace KimSeHyun
 
                 boxX = newBoxX;
                 boxY = newBoxY;
+
+                for (int index = 0; index < goalPositionX.Length; ++index)
+                {
+                    if (boxX == goalPositionX[index] && boxY == goalPositionY[index])
+                    {
+                        isBoxOnGoal = true;
+
+                        break;
+                    }
+                }
 
                 //if (boxX == goalX && boxY == goalY)
                 //{
