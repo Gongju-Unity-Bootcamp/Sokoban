@@ -259,14 +259,18 @@ namespace Sokoban
                     break;
                 }
             }
+
             Console.Clear();
             Console.WriteLine("축하합니다. 소코반 성공!");
         }
 
         // Render
         // Input
-        // CheckWall
-        // CheckBox
-        // CheckPlayer
+        // PlayerUpdate.
+        // BoxUpdate. Update
+        // WallUpdate.
+        // CheckWall.
+        // CheckBox. ExceptionCheck
+        // CheckPlayer.
     }
 }
