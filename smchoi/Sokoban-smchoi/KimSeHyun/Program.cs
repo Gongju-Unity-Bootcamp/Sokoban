@@ -226,10 +226,16 @@ namespace KimSeHyun
                     }
                 }
 
-                //if (boxX == goalX && boxY == goalY)
-                //{
-                //    break;
-                //}
+                bool isClear = true;
+                for (int index = 0; index < isBoxOnGoal.Length; ++index)
+                {
+                    isClear &= isBoxOnGoal[index];
+                }
+
+                if (isClear)
+                {
+                    break;
+                }
             }
 
             Console.Clear();
