@@ -1,4 +1,5 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Runtime.InteropServices;
 using System.Security.Principal;
 
@@ -19,7 +20,7 @@ namespace Sokoban
         {
             Console.ResetColor();
             Console.CursorVisible = false;
-            Console.Title = "I am 믿습니다.";
+            Console.Title = "Sokoban Game";
             Console.BackgroundColor = ConsoleColor.DarkBlue;
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Clear();
@@ -27,13 +28,11 @@ namespace Sokoban
             int playerX = 10;
             int playerY = 10;
 
-
             Direction playerDirection = Direction.None;
 
             int isBoxOnGoal = 0;
             int isBoxOnGoal2 = 0;
             int isBoxOnGoal3 = 0;
-
 
             int[] boxX = new int[3] { 4, 6, 9 };
             int[] boxY = new int[3] { 5, 7, 9 };
@@ -46,10 +45,8 @@ namespace Sokoban
             int[] goalPositionX = new int[3] { 3, 8, 7 };
             int[] goalPositionY = new int[3] { 2, 4, 8 };
 
-            int[] newboxX = new int[3] { 0, 0, 0};
-            int[] newboxY = new int[3] { 0, 0, 0};
-
-
+       //     int[] newboxX = new int[3] { 0, 0, 0};
+      //      int[] newboxY = new int[3] { 0, 0, 0};
 
             while (true)
             {
@@ -57,7 +54,6 @@ namespace Sokoban
                 Console.Clear();
                 Console.CursorVisible = false;
 
-               
 
                 Console.SetCursorPosition(playerX, playerY);
                 ConsoleColor prevColor = Console.ForegroundColor;
@@ -65,7 +61,6 @@ namespace Sokoban
                 Console.Write("P");
                 Console.ForegroundColor = prevColor;
 
-               
 
                 for (int index = 0; index < goalPositionX.Length; ++index)
                 {
@@ -115,10 +110,10 @@ namespace Sokoban
                     }
                 }
 
+
                 isBoxOnGoal = 0;
                 isBoxOnGoal2 = 0;
                 isBoxOnGoal3 = 0;
-
 
                 for (int index = 0; index < wallPositionX.Length; ++index)
                 {
@@ -163,17 +158,23 @@ namespace Sokoban
 
 
 
-              
+
 
 
                 // 플레이어와 박스가 충돌했을 때 => (플레이어 좌표) == (박스 좌표)
+
+                int[] newboxX = new int[boxX.Length];
+                boxX.CopyTo(newboxX, 0);
+                int[] newboxY = new int[boxY.Length];
+                boxY.CopyTo(newboxY, 0);
+
                 for (int index = 0; index < boxX.Length; index++)
                 {
-                    newboxX[index] = boxX[index];
-                    newboxY[index] = boxY[index];
 
-                    if (newPlayerX == newboxX[index] && newPlayerY == newboxY[index])
+                    if (!(newPlayerX == newboxX[index] && newPlayerY == newboxY[index]))
                     {
+                        continue;
+                    }
                         // 박스는 플레이어가 이동한 방향으로 한 칸 이동한다.
                         switch (playerDirection)
                         {
@@ -195,53 +196,67 @@ namespace Sokoban
                                 Environment.Exit(0);
                                 break;
                         }
-                    }
+                    
                 }
 
-                // 박스의 기능 : 박스의 위치로는 어떤 오브젝트도 위치할 수 없다. =>(박스의 좌표) !=(박스의 좌표) &&
-
-                if (newboxX[0] == newboxX[1] && newboxY[0] == newboxY[1] ||
+                // 박스의 기능 : 박스의 위치로는 어떤 오브젝트도 위치할 수 없다. =>(박스의 좌표) !=(다른박스의X좌표) && (박스의 좌표Y) !=
+                //(다른박스의 좌표Y) 이 조건문을 OR로 각 박스마다 적용
+                bool isCollidedToboxbox = false;
+                for (int index = 0; index<newboxX.Length; index++)
+                {
+                    for(int j = 0; j < newboxY.Length; j++)
+                    {
+                        if(index == j)
+                        {
+                            j++;
+                        }
+                        if(j>=newboxY.Length-1)
+                        {
+                            break;
+                        }
+                        if (newboxX[index] == newboxX[j] && newboxY[index] == newboxY[j] ||
+                        newboxX[index] == newboxX[j] && newboxY[index] == newboxY[j])
+                        {
+                            isCollidedToboxbox = true;
+                        }
+                    }
+                }
+                if(isCollidedToboxbox)
+                {
+                    continue;
+                }
+                /*if (newboxX[0] == newboxX[1] && newboxY[0] == newboxY[1] ||
                 newboxX[0] == newboxX[2] && newboxY[0] == newboxY[2])
-                { continue; }
+                {
+                    continue;
+                }
                 else if (newboxX[1] == newboxX[2] && newboxY[1] == newboxY[2] ||
                     newboxX[1] == newboxX[0] && newboxY[1] == newboxY[0])
-                { continue; }
+                {
+                    continue;
+                }
                 else if (newboxX[2] == newboxX[1] && newboxY[2] == newboxY[1] ||
                 newboxX[2] == newboxX[0] && newboxY[2] == newboxY[0])
-                { continue; }
-
-
-
-
-
-
-
-
-
+                {
+                    continue;
+                }*/
 
                 // 벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다. => (벽의 좌표) != (박스의 좌표) && (벽의 좌표) != (플레이어의 좌표)
                 bool isCollidedToWall = false;
                 for (int index = 0; index < wallPositionX.Length; ++index)
                 {
-                    if (wallPositionX[index] == newPlayerX && wallPositionY[index] == newPlayerY ||
-                    wallPositionX[index] == newboxX[0] && wallPositionY[index] == newboxY[0])
+                    for (int j = 0; j < newboxX.Length; j++)
                     {
-                        isCollidedToWall = true;
-                        break;
+                        if (wallPositionX[index] == newPlayerX && wallPositionY[index] == newPlayerY ||
+                        wallPositionX[index] == newboxX[j] && wallPositionY[index] == newboxY[j])
+                        {
+                            isCollidedToWall = true;      
+                        }
                     }
-                    else if (wallPositionX[index] == newPlayerX && wallPositionY[index] == newPlayerY ||
-                    wallPositionX[index] == newboxX[1] && wallPositionY[index] == newboxY[1])
+                    if (isCollidedToWall)
                     {
-                        isCollidedToWall = true;
-                        break;
+                        continue;
                     }
-                    else if (wallPositionX[index] == newPlayerX && wallPositionY[index] == newPlayerY ||
-                    wallPositionX[index] == newboxX[2] && wallPositionY[index] == newboxY[2])
-                    {
-                        isCollidedToWall = true;
-                        break;
-                    }
-
                 }
 
                 if (isCollidedToWall)
@@ -259,10 +274,6 @@ namespace Sokoban
                     playerY = newPlayerY;
                 }
 
-              
-              
-  
-          
 
                    for (int index = 0; index < boxX.Length; index++)
                      {
@@ -270,7 +281,6 @@ namespace Sokoban
                          boxY[index] = newboxY[index];
                      }
                 
-
                 for (int index = 0; index < goalPositionX.Length; ++index)
                 {
                     if (boxX[0] == goalPositionX[index] && boxY[0] == goalPositionY[index])
