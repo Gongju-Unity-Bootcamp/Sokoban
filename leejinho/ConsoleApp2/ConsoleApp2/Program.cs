@@ -28,12 +28,16 @@ namespace Jinkoban
             //객체의 설정 값
             int playerX = 1;
             int playerY = 1;
-            int[] boxPositionX = new int[2] { 5, 6 };
-            int[] boxPositionY = new int[2] { 5, 6 };
+            int[] boxPositionX = new int[3] { 5, 21, 27 };
+            int[] boxPositionY = new int[3] { 5, 3, 27 };
+            bool[] isboxOngoal = new bool[3];
+
+
             int[] wallPositionX = new int[5] { 10, 11, 12, 13, 14 };
             int[] wallPositionY = new int[5] { 10, 11, 12, 13, 14 };
-            int[] goalPositionX = new int[2] { 7, 9 };
-            int[] goalPositionY = new int[2] { 16, 18 };
+            int[] goalPositionX = new int[3] { 7, 9, 17};
+            int[] goalPositionY = new int[3] { 16, 17, 18 };
+            bool isBoxonGoal = false;
 
             //---------------------------Render
             while (true)
@@ -91,25 +95,35 @@ namespace Jinkoban
                     playerDirection = Direction.Down;
                 }
 
-                //------------------box1 이동
-                int newboxX = boxPositionX[0];
-                int newboxY = boxPositionY[0];
+                //------------------box 이동
+                int[] newboxPositionX = new int[boxPositionX.Length];
+                boxPositionX.CopyTo(newboxPositionX, 0);
+                int[] newboxPositionY = new int[boxPositionY.Length];
+                boxPositionY.CopyTo(newboxPositionY, 0);
 
-                if (newplayerX == newboxX && newplayerY == newboxY)
+                int pushdeBoxIndex = 0;
+                for (int index = 0; index < boxPositionX.Length; index++)
                 {
+                    if (newplayerX != newboxPositionX[index] || newplayerY != newboxPositionY[index])
+                    {
+                        continue;
+                    }
+
+                    pushdeBoxIndex = index;
+
                     switch (playerDirection)
                     {
                         case Direction.Left:
-                            newboxX -= 1;
+                            newboxPositionX[index] -= 1;
                             break;
                         case Direction.Right:
-                            newboxX += 1;
+                            newboxPositionX[index] += 1;
                             break;
                         case Direction.Up:
-                            newboxY -= 1;
+                            newboxPositionY[index] -= 1;
                             break;
                         case Direction.Down:
-                            newboxY += 1;
+                            newboxPositionY[index] += 1;
                             break;
                         default:
                             Console.Clear();
@@ -117,35 +131,45 @@ namespace Jinkoban
                             Environment.Exit(0);
                             break;
                     }
+
                 }
 
-                // -----------------box2 이동
-                int newbox2X = boxPositionX[1];
-                int newbox2Y = boxPositionY[1];
-
-                if (newplayerX == newboxX && newplayerY == newboxY)
+                bool isCollidedtoWall = false;
+                for (int index = 0; index < wallPositionX.Length; ++index)
                 {
-                    switch (playerDirection)
+                    if (wallPositionX[index] == newplayerX && wallPositionY[index] == newplayerY ||
+                        wallPositionX[index] == boxPositionX[pushdeBoxIndex] && wallPositionY[index] == boxPositionY[pushdeBoxIndex])
                     {
-                        case Direction.Left:
-                            newbox2X -= 1;
-                            break;
-                        case Direction.Right:
-                            newbox2X += 1;
-                            break;
-                        case Direction.Up:
-                            newbox2Y -= 1;
-                            break;
-                        case Direction.Down:
-                            newbox2Y += 1;
-                            break;
-                        default:
-                            Console.Clear();
-                            Console.WriteLine($"큰일큰일큰일 에러가 발생했습니다");
-                            Environment.Exit(0);
-                            break;
+                        isCollidedtoWall = true;
+                        break;
                     }
                 }
+
+                if (isCollidedtoWall)
+                {
+                    continue;
+                }
+
+                bool isCollidedToBox = false;
+                for (int index = 0; index < newboxPositionX.Length; ++index)
+                {
+                    if (index == pushdeBoxIndex)
+                    {
+                        continue;
+                    }
+
+                    if (newboxPositionX[index] == newboxPositionX[pushdeBoxIndex] && newboxPositionY[index] == newboxPositionY[pushdeBoxIndex])
+                    {
+                        isCollidedToBox = true;
+                        break;
+                    }
+                }
+
+                if (isCollidedToBox)
+                {
+                    continue;
+                }
+
 
 
                 if (0 < newplayerX && newplayerX < Console.BufferWidth)
@@ -156,32 +180,53 @@ namespace Jinkoban
                 {
                     playerY = newplayerY;
                 }
-                if (0 < newboxX && newboxX < Console.BufferWidth)
+
+                for (int index = 0; index < boxPositionX.Length; ++index)
                 {
-                    boxPositionX[0] = newboxX;
-                }
-                if (0 < newboxY && newboxY < Console.BufferHeight)
-                {
-                    boxPositionY[0] = newboxY;
-                }
-                if (0 < newbox2X && newbox2X > Console.BufferWidth)
-                {
-                    boxPositionX[1] = newbox2X;
-                }
-                if (0 <newbox2Y && newbox2Y > Console.BufferHeight)
-                {
-                    boxPositionY[1] = newbox2Y;
+                    if (0 < newboxPositionX[index] && newboxPositionX[index] < Console.BufferWidth)
+                    {
+                        boxPositionX[index] = newboxPositionX[index];
+                    }
+                    if (0 < newboxPositionY[index] && newboxPositionY[index] < Console.BufferHeight)
+                    {
+                        boxPositionY[index] = newboxPositionY[index];
+                    }
                 }
 
-                //--------------------벽아 뭐하는 애니
-                //                if (wallPositionX == playerX && wallPositionY == playerY || boxPositionX == wallPositionX && boxPositionY == wallPositionY)
-                //                {
-                //                    contiune;
-                //                }
+                //
+                newboxPositionX.CopyTo(boxPositionX, 0);
+                newboxPositionY.CopyTo(boxPositionY, 0);
+
+                isboxOngoal[pushdeBoxIndex] = false;
+                for (int index = 0; index < goalPositionX.Length; ++index)
+                {
+                    if (boxPositionX[pushdeBoxIndex] == goalPositionX[index] && boxPositionY[pushdeBoxIndex] == goalPositionY[index])
+                    {
+                        isboxOngoal[pushdeBoxIndex] = true;
+                        break;
+                    }
+                }
+
+
+                goalPositionX.CopyTo(goalPositionX, 0);
+                goalPositionY.CopyTo(goalPositionY, 0);
+
+                bool isClear = true;
+                for (int index = 0; index < isboxOngoal.Length; ++index)
+                {
+                    isClear &= isboxOngoal[index];
+                }
+
+                if (isClear)
+                {
+                    break;
+                }
+
             }
+            Console.Clear();
+            Console.WriteLine("끝이당헤헿");
+
         }
     }
 }
-
-
 
