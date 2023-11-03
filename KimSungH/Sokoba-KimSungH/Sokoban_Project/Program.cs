@@ -135,18 +135,19 @@
 
             //Random rand = new Random();
 
-            int boxX = 7;
-            int boxY = 7;
-
             int[] wallPositionX = new int[5] { 10, 8, 5, 2, 10 };
             int[] wallPositionY = new int[5] { 6, 2, 3, 1, 9 };
 
             int[] goalPositionX = new int[3] { 3, 32, 23 };
             int[] goalPositionY = new int[3] { 5, 5, 22 };
 
+            int[] BoxPositionX = new int[3] { 3, 5, 11 };
+            int[] BoxPositionY = new int[3] { 10, 7, 9 };
+            bool[] isBoxOnGoal = new bool[3];
+
             int goalCount = goalPositionX.Length;
             int wallCount = wallPositionX.Length;
-            
+            int boxCount = BoxPositionX.Length;
 
             while (true)
             {
@@ -160,38 +161,35 @@
                 //Console.SetCursorPosition(objectX, objectY);
                 //Console.Write("@");
 
-                for (int i = 0; i < goalCount; i++)
+                for (int i = 0; i < goalCount; ++i)
                 {
                     Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
                     Console.Write("G");
                 }
-
-                for (int i = 0; i < goalCount; ++i)
+                for (int i = 0; i < boxCount; ++i)
                 {
-                    if (boxX == goalPositionX[i] && boxY == goalPositionY[i])
+                    
+                    if (isBoxOnGoal[i])
                     {
                         Console.ForegroundColor = ConsoleColor.White;
-                        Console.SetCursorPosition(boxX, boxY);
+                        Console.SetCursorPosition(BoxPositionX[i], BoxPositionY[i]);
                         Console.Write("B");
                         Console.ForegroundColor = ConsoleColor.Red;
-                        break;
                     }
                     else
                     {
-                        Console.SetCursorPosition(boxX, boxY);
+                        Console.SetCursorPosition(BoxPositionX[i], BoxPositionY[i]);
                         Console.Write('B');
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        
                     }
-                }
-                
-                
 
-                for(int i = 0; i < wallCount; i++)
+                }
+                for (int i = 0; i < wallCount; i++)
                 {
                     Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
                     Console.Write('W');
                 }
-                
-                
 
                 //----------------ProcessInput-------------
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
@@ -204,17 +202,17 @@
                 int newPlayerX = playerX;
                 int newPlayerY = playerY;
 
-                if (Key == ConsoleKey.LeftArrow )
+                if (Key == ConsoleKey.LeftArrow)
                 {
                     newPlayerX -= 1;
                     PlayerDirection = Direction.Left;
                 }
-                if (Key == ConsoleKey.RightArrow )
+                if (Key == ConsoleKey.RightArrow)
                 {
                     newPlayerX += 1;
                     PlayerDirection = Direction.Right;
                 }
-                if (Key == ConsoleKey.UpArrow )
+                if (Key == ConsoleKey.UpArrow)
                 {
                     newPlayerY -= 1;
                     PlayerDirection = Direction.Up;
@@ -224,28 +222,43 @@
                     newPlayerY += 1;
                     PlayerDirection = Direction.Down;
                 }
+                
+                int[] newBoxX = new int[boxCount];
+                BoxPositionX.CopyTo(newBoxX, 0);
+                int[] newBoxY = new int[boxCount];
+                BoxPositionY.CopyTo(newBoxY, 0);
 
-                int newBoxX = boxX;
-                int newBoxY = boxY;
+                newBoxX.CopyTo(BoxPositionX, 0);
+                newBoxY.CopyTo(BoxPositionY, 0);
 
-                if (newPlayerX == newBoxX && newPlayerY == newBoxY)
+                
+                
+                int index = 0;
+                for (int i = 0; i < boxCount; ++i)
                 {
+                    //if(!(newPlayerX == newBoxX[i] && newPlayerY == newBoxY[i]))
+                    //if(false == (newPlayerX == newBoxX[i] && newPlayerY == newBoxY[i]))
+                    if (newPlayerX != newBoxX[i] || newPlayerY != newBoxY[i])
+                    {
+                        continue;
+                    }
+                    index = i;
                     switch (PlayerDirection)
                     {
                         case (Direction)1:
-                            newBoxX -= 1;
+                            newBoxX[i] -= 1;
 
                             break;
                         case (Direction)2:
-                            newBoxX += 1;
+                            newBoxX[i] += 1;
 
                             break;
                         case (Direction)3:
-                            newBoxY -= 1;
+                            newBoxY[i] -= 1;
 
                             break;
                         case (Direction)4:
-                            newBoxY += 1;
+                            newBoxY[i] += 1;
 
                             break;
                         default:
@@ -260,17 +273,38 @@
                 // 벽 좌표 != 박스 좌표 && 벽 좌표 != 플레이어 좌표
 
                 bool checkWall = false;
-
-                for(int i = 0; i < wallCount; ++i)
+                //박스 3개, 벽 5개
+                //플레이어가 동시에 밀 수 있는 박스의 최대 개수는 1개 -> 플레이어가 민 박스만 특정할 수 있다면?
+                for (int i = 0; i < wallCount; ++i)
                 {
                     if (wallPositionX[i] == newPlayerX && wallPositionY[i] == newPlayerY ||
-                        wallPositionX[i] == newBoxX && wallPositionY[i] == newBoxY)
+                        wallPositionX[i] == newBoxX[index] && wallPositionY[i] == newBoxY[index])
                     {
                         checkWall = true;
                         break;
                     }
                 }
-                if (checkWall) 
+                if (checkWall)
+                {
+                    continue;
+                }
+                //박스끼리 충돌
+
+                bool BoxColide = false;
+
+                for (int i = 0; i < boxCount; ++i)
+                {
+                    if (i == index)
+                    {
+                        continue;
+                    }
+                    if (newBoxX[i] == newBoxX[index] && newBoxY[i] == newBoxY[index])
+                    {
+                        BoxColide = true;
+                        break;
+                    }
+                }
+                if (BoxColide)
                 {
                     continue;
                 }
@@ -284,59 +318,77 @@
                     playerY = newPlayerY;
                 }
 
-                if (0 <= newBoxX && newBoxX < Console.BufferWidth)
+                for (int i = 0; i < boxCount; ++i)
                 {
-                    boxX = newBoxX;
-                }
-                else
-                {
-                    switch (PlayerDirection)
+                    if (0 <= newBoxX[i] && newBoxX[i] < Console.BufferWidth)
                     {
-                        case Direction.Left:
-                            playerX += 1;
-                            break;
-                        case Direction.Right:
-                            playerX -= 1;
-                            break;
+                        BoxPositionX[i] = newBoxX[i];
                     }
-                }
+                    else
+                    {
+                        switch (PlayerDirection)
+                        {
+                            case Direction.Left:
+                                playerX += 1;
+                                break;
+                            case Direction.Right:
+                                playerX -= 1;
+                                break;
+                        }
+                    }
 
-                if (0 <= newBoxY && newBoxY < Console.BufferHeight)
-                {
-                    boxY = newBoxY;
                 }
-                else
+                for (int i = 0; i < boxCount; ++i)
                 {
-                    switch(PlayerDirection)
+                    if (0 <= newBoxY[i] && newBoxY[i] < Console.BufferHeight)
                     {
-                        case Direction.Up:
-                            playerY += 1;
-                            break;
-                        case Direction.Down:
-                            playerY -= 1;
-                            break;
+                        BoxPositionY[index] = newBoxY[index];
                     }
+                    else
+                    {
+                        switch (PlayerDirection)
+                        {
+                            case Direction.Up:
+                                playerY += 1;
+                                break;
+                            case Direction.Down:
+                                playerY -= 1;
+                                break;
+                        }
+                    }
+
                 }
 
                 bool checkGoal = false;
-
-                for(int i = 0; i < goalCount; ++i) 
+               
+                //1개의 박스에 대해서
+                
+                for (int i = 0; i < goalCount; ++i)
                 {
-                    if (boxX == goalPositionX[i] && boxY == goalPositionY[i])
+                    if (BoxPositionX[index] == goalPositionX[i] && BoxPositionY[index] == goalPositionY[i])
                     {
-                        checkGoal = true;
+                        isBoxOnGoal[index] = true;
                         break;
                     }
                 }
                 if (checkGoal)
                 {
                     continue;
-                }             
+                }
+                bool isClear = true;
+                for(int i = 0; i < boxCount; ++i)
+                {
+                    isClear &= isBoxOnGoal[i];
+                    
+                }
+                if (isClear)
+                {
+                    break;
+                }
             }
-            Console.Clear();
-            Console.WriteLine("축하합니다 클리어입니다.");
-
-            Console.ResetColor();
+                Console.Clear();
+                Console.WriteLine("축하합니다 클리어입니다.");
+                Console.ResetColor();
         } 
     }
 }
