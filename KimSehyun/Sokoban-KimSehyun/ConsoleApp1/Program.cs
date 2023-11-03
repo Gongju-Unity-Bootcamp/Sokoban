@@ -46,6 +46,8 @@ namespace Sokoban
             int[] boxPositionY = new int[3] { 7, 6, 4 };
             int boxCount = boxPositionX.Length;
 
+            bool[] isBoxOnGoals = new bool[3];
+
             while (true)
             {
                 /// Render
@@ -62,24 +64,36 @@ namespace Sokoban
                 {
                     for (int j = 0; j < boxCount; ++j)
                     {
-                        if (boxPositionX[j] == goalPositionX[i] && boxPositionY[j] == goalPositionY[i])
+                        if (boxPositionX[i] == goalPositionX[j] && boxPositionY[i] == goalPositionY[j])
                         {
-                            Console.ForegroundColor = ConsoleColor.White;
-                            Console.SetCursorPosition(boxPositionX[j], boxPositionY[j]);
-                            Console.Write("B");
-                            Console.ForegroundColor = ConsoleColor.Black;
+                            isBoxOnGoals[i] = true;
                         }
-                        else
-                        {
-                            Console.SetCursorPosition(boxPositionX[j], boxPositionY[j]);
-                            Console.Write("B");
-                        }
+                    }
+                }
+                for (int i = 0; i < boxCount; ++i)
+                {
+                    if (isBoxOnGoals[i])
+                    {
+                        Console.ForegroundColor = ConsoleColor.White;
+                        Console.SetCursorPosition(boxPositionX[i], boxPositionY[i]);
+                        Console.Write("B");
+                        Console.ForegroundColor = ConsoleColor.Black;
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(boxPositionX[i], boxPositionY[i]);
+                        Console.Write("B");
                     }
                 }
                 for (int i = 0; i < wallCount; ++i)
                 {
                     Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
                     Console.Write("X");
+                }
+
+                for (int i = 0; i < boxCount; ++i)
+                {
+                    isBoxOnGoals[i] = false;
                 }
 
                 /// Process Input
@@ -124,28 +138,29 @@ namespace Sokoban
                 /// Player와 Box가 충돌했을 때, Box는 Player가 이동한 방향으로 한 칸 이동한다.
                 for (int i = 0; i < boxCount; ++i)
                 {
-                    if (newBoxX[i] == newPlayerX && newBoxY[i] == newPlayerY)
+                    if (false == (newPlayerX == newBoxX[i] && newPlayerY == newBoxY[i]))
                     {
-                        switch (playerDirection)
-                        {
-                            case Direction.Left: /// Left
-                                newBoxX[i] -= 1;
-                                break;
-                            case Direction.Right: /// Right
-                                newBoxX[i] += 1;
-                                break;
-                            case Direction.Up: /// Up
-                                newBoxY[i] -= 1;
-                                break;
-                            case Direction.Down: /// Down
-                                newBoxY[i] += 1;
-                                break;
-                            default:
-                                Console.Clear();
-                                Console.WriteLine($"Wrong direction data : {playerDirection}");
-                                Environment.Exit(0);
-                                break;
-                        }
+                        continue;
+                    }
+                    switch (playerDirection)
+                    {
+                        case Direction.Left: /// Left
+                            newBoxX[i] -= 1;
+                            break;
+                        case Direction.Right: /// Right
+                            newBoxX[i] += 1;
+                            break;
+                        case Direction.Up: /// Up
+                            newBoxY[i] -= 1;
+                            break;
+                        case Direction.Down: /// Down
+                            newBoxY[i] += 1;
+                            break;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine($"Wrong direction data : {playerDirection}");
+                            Environment.Exit(0);
+                            break;
                     }
                 }
 
@@ -157,7 +172,7 @@ namespace Sokoban
                     for (int j = 0; j < boxCount; ++j)
                     {
                         if (wallPositionX[i] == newPlayerX && wallPositionY[i] == newPlayerY
-                    || wallPositionX[i] == newBoxX[j] && wallPositionY[i] == newBoxY[j])
+                        || wallPositionX[i] == newBoxX[j] && wallPositionY[i] == newBoxY[j])
                         {
                             checkWall = true;
                             break;
