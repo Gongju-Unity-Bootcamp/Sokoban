@@ -1,142 +1,151 @@
 ﻿using System;
-using System.Net.Sockets;
+using System.Runtime.InteropServices;
 
 namespace Bible
 {
+    enum Direction
+    {
+        None,
+        Left,
+        Right,
+        Up,
+        Down
+    }
     internal class Program
     {
-        enum Direction
-        {
-            None,
-            Left,
-            Right,
-            Up,
-            Down
-        }
 
         static void Main()
         {
             Console.ResetColor();
             Console.CursorVisible = false;
-            Console.Title = "My Sokonan";
+            Console.Title = "I am 믿습니다.";
             Console.BackgroundColor = ConsoleColor.DarkBlue;
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.Clear();
-            ConsoleColor prevColor = Console.ForegroundColor;
 
-            // 플레이어
-            int playerX = 0;
-            int playerY = 0;
-            // int speed = 1;
-
-            // 박스
-            int boxX = 7;
-            int boxY = 7;
-            bool isBoxOnGoal = false;
-
-            // 골~
-            int[] wallPositionX = new int[5] { 12, 13, 14, 15, 16 };
-            int[] wallPositionY = new int[5] { 12, 12, 12, 12, 12 };
-
-            int[] goalPositionX = new int[3] { 1, 6, 5};
-            int[] goalPositionY = new int[3] { 2, 4, 3 };
-
-
+            int playerX = 10;
+            int playerY = 20;
             Direction playerDirection = Direction.None;
-            
+
+            int[] boxPositionX = { 7, 1, 4 };
+            int[] boxPositionY = { 5, 2, 3 };
+            bool[] isBoxOnGoal = new bool[3];
+
+            int[] wallPositionX = new int[5] { 8, 9, 13, 5, 10 };
+            int[] wallPositionY = new int[5] { 8, 1, 6, 9, 3 };
+
+            int[] goalPositionX = new int[3] { 15, 8, 2 };
+            int[] goalPositionY = new int[3] { 15, 4, 5 };
 
             while (true)
             {
-                // ---------------------- Render ----------------------
+                //// ------------------------------ Render ---------------------------
                 Console.Clear();
                 Console.CursorVisible = false;
 
-                // 플레이어를 출력한다.
                 Console.SetCursorPosition(playerX, playerY);
-                Console.Write("★");
-                // 골 지점을 출력한다.
-                for (int i = 0; i < goalPositionX.Length; ++i)
+                ConsoleColor prevColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Magenta;
+                Console.Write("P");
+                Console.ForegroundColor= prevColor;
+
+                for (int index = 0; index < goalPositionX.Length; ++index)
                 {
-                    Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
-                    Console.Write("⊙");
+                    Console.SetCursorPosition(goalPositionX[index], goalPositionY[index]);
+                    Console.Write("G");
                 }
-                // 박스를 출력한다.
-                if (isBoxOnGoal)
+                for (int index = 0; index < isBoxOnGoal.Length; ++index)
                 {
-                    Console.SetCursorPosition(boxX, boxY);
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write("◆");
-                    Console.ForegroundColor = prevColor;
-                }
-                else
-                {
-                    Console.SetCursorPosition(boxX, boxY);
-                    Console.Write("◆");
-                }
-                // 벽을 출력한다.
-                for (int i = 0; i < wallPositionX.Length; ++i)
-                {
-                    Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
-                    Console.Write("▣");
+                    if (isBoxOnGoal[index])
+                    {
+                        Console.SetCursorPosition(boxPositionX[index], boxPositionY[index]);
+                        prevColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write("B");
+                        Console.ForegroundColor = prevColor;
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(boxPositionX[index], boxPositionY[index]);
+                        Console.Write("B");
+                    }
                 }
 
-                // ---------------------- ProcessInput ----------------------
-                // 유저로부터 입력을 받는다.
+                for (int index = 0; index < wallPositionX.Length; ++index)
+                {
+                    Console.SetCursorPosition(wallPositionX[index], wallPositionY[index]);
+                    Console.Write("#");
+                }
+
+                // ------------------------------ ProcessInput ---------------------------
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
 
-
-                // ---------------------- Update ----------------------
+                // ------------------------------ Update ---------------------------
                 int newPlayerX = playerX;
                 int newPlayerY = playerY;
+                playerDirection = Direction.None;
 
-
-
-                // 플레이어 이동
                 if (keyInfo.Key == ConsoleKey.LeftArrow)
                 {
                     newPlayerX -= 1;
                     playerDirection = Direction.Left;
                 }
+
                 if (keyInfo.Key == ConsoleKey.RightArrow)
                 {
                     newPlayerX += 1;
                     playerDirection = Direction.Right;
                 }
+
                 if (keyInfo.Key == ConsoleKey.UpArrow)
                 {
                     newPlayerY -= 1;
                     playerDirection = Direction.Up;
                 }
+
                 if (keyInfo.Key == ConsoleKey.DownArrow)
                 {
                     newPlayerY += 1;
                     playerDirection = Direction.Down;
                 }
 
-                if (keyInfo.Key == ConsoleKey.Escape)
-                {
-                    Environment.Exit(0);
-                }
-                // }
+                // 플레이어와 박스가 충돌했을 때 => (플레이어 좌표) == (박스 좌표)
+                // int newBoxX = boxX;
+                // boxPosition들을 모두 newBox에 복사하는 것
+                int[] newBoxPositionX = new int[boxPositionX.Length];
+                boxPositionX.CopyTo(newBoxPositionX, 0);
+                int[] newBoxPositionY = new int[boxPositionY.Length];
+                boxPositionY.CopyTo(newBoxPositionY, 0);
 
-                int newBoxY = boxY;
-                int newBoxX = boxX;
-                // 플레이어와 박스가 충돌했을 때, 박스는 플레이어가 이동한 방향으로 한 칸 이동한다.
-                if ( newPlayerX == newBoxX  && newPlayerY == newBoxY ) 
+                int pushedBoxIndex = 0;
+                for (int index = 0; index < boxPositionX.Length; index++)
                 {
+                    // ! (NOT)
+                    // true -> false
+                    // false -> true
+                    //if (!(newPlayerX == newBoxPositionX[index] && newPlayerY == newBoxPositionY[index]))
+                    //if (false == (newPlayerX == newBoxPositionX[index] && newPlayerY == newBoxPositionY[index]))
+                    if (newPlayerX != newBoxPositionX[index] || newPlayerY != newBoxPositionY[index])
+                    {
+                        continue;
+                    }
+
+                    pushedBoxIndex = index;
+          
+                    // 박스는 플레이어가 이동한 방향으로 한 칸 이동한다.
                     switch (playerDirection)
                     {
                         case Direction.Left:
-                            newBoxX -= 1;
+                            newBoxPositionX[index] -= 1;
                             break;
                         case Direction.Right:
-                            newBoxX += 1;
+                            newBoxPositionX[index] += 1;
                             break;
                         case Direction.Up:
-                            newBoxY -= 1;
+                            newBoxPositionY[index] -= 1;
                             break;
                         case Direction.Down:
-                            newBoxY += 1;
+                            newBoxPositionY[index] += 1;
                             break;
                         default:
                             Console.Clear();
@@ -146,84 +155,81 @@ namespace Bible
                     }
                 }
 
-                // 벽
-                bool wallCheck = false;
-                for (int i = 0; i < wallPositionX.Length; i++) 
+                // 벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다. => (벽의 좌표) != (박스의 좌표) && (벽의 좌표) != (플레이어의 좌표)
+                bool isCollidedToWall = false;
+                for (int index = 0; index < wallPositionX.Length; ++index)
                 {
-                    if (wallPositionX[i] == newPlayerX && wallPositionY[i] == newPlayerY ||
-                        wallPositionX[i] == newBoxX && wallPositionY[i] == newBoxY)
+                    if (wallPositionX[index] == newPlayerX && wallPositionY[index] == newPlayerY ||
+                    wallPositionX[index] == newBoxPositionX[pushedBoxIndex] && wallPositionY[index] == newBoxPositionY[pushedBoxIndex])
                     {
-                        wallCheck = true;
+                        isCollidedToWall = true;
                         break;
                     }
                 }
-                if (wallCheck)
+
+                if (isCollidedToWall)
                 {
                     continue;
                 }
-                        
-                // 박스 골 위치 채크.
-                for (int i = 0; i < goalPositionX.Length; i++)
+
+                bool isCollidedToBox = false;
+                for (int index = 0; index < newBoxPositionX.Length; ++index)
                 {
-                    if (boxX == goalPositionX[i] && boxY == goalPositionY[i])
+                    if (index == pushedBoxIndex)
                     {
-                        isBoxOnGoal = true;
+                        continue;
+                    }
+
+                    if (newBoxPositionX[index] == newBoxPositionX[pushedBoxIndex] &&
+                        newBoxPositionY[index] == newBoxPositionY[pushedBoxIndex])
+                    {
+                        isCollidedToBox = true;
                         break;
-                    }                  
-                }
-
-                // 박스 유효성
-                if (0 <= newBoxX && newBoxX < Console.BufferWidth)
-                {
-                    boxX = newBoxX;
-                }
-                else
-                {
-                    switch(playerDirection)
-                    {
-                        case Direction.Left:
-                            newPlayerX += 1;
-                            break;
-                        case Direction.Right:
-                            newPlayerX -= 1;
-                            break;
                     }
                 }
-                if (0 <= newBoxY && newBoxY < Console.BufferHeight)
-                {
-                    boxY = newBoxY;
-                }
-                else
-                {
-                    switch (playerDirection)
-                    {
-                        case Direction.Up:
-                            newPlayerY += 1;
-                            break;
-                        case Direction.Down:
-                            newPlayerY -= 1;
-                            break;
 
-                    }
+                if (isCollidedToBox)
+                {
+                    continue;
                 }
-                //플레이어 유효성
+
                 if (0 <= newPlayerX && newPlayerX < Console.BufferWidth)
                 {
                     playerX = newPlayerX;
                 }
+
                 if (0 <= newPlayerY && newPlayerY < Console.BufferHeight)
                 {
                     playerY = newPlayerY;
                 }
 
-                // // 골~
-                // if ( newBoxX == goalX &&  newBoxY == goalY)
-                // {
-                //     break;
-                // }                
+                newBoxPositionX.CopyTo(boxPositionX, 0);
+                newBoxPositionY.CopyTo(boxPositionY, 0);
+
+                isBoxOnGoal[pushedBoxIndex] = false;
+                for (int index = 0; index < goalPositionX.Length; ++index)
+                {
+                    if (boxPositionX[pushedBoxIndex] == goalPositionX[index] && boxPositionY[pushedBoxIndex] == goalPositionY[index])
+                    {
+                      isBoxOnGoal[pushedBoxIndex] = true;
+
+                      break;
+                    }
+                }
+
+
+                bool isClear = true;
+                for (int index = 0; index < isBoxOnGoal.Length; ++index)
+                {
+                    isClear &= isBoxOnGoal[index];
+                }
+                if (isClear)
+                {
+                    break;
+                }
+
+
             }
-            Console.Clear();
-            Console.WriteLine("ㅊㅊㅊㅊㅊ");
         }
     }
 }
