@@ -37,7 +37,6 @@
 
             bool[] isBoxOnGoal = new bool[boxX.Length];
             int pushedBox = default; // 밀어낸 박스
-            int boxOnGoal = 0;
 
             int[] wallPositionX = new int[15];
             int[] wallPositionY = new int[15];
@@ -104,8 +103,6 @@
                 }
 
                 Console.ForegroundColor = ConsoleColor.Black;
-                Console.SetCursorPosition(0, 0);
-                Console.Write($"SCORE : {boxOnGoal}");
                 Console.SetCursorPosition(0, Console.BufferHeight - 1);
                 Console.Write("R : Reset, Esc : Escape");
                 Console.ForegroundColor = prevColor;
@@ -147,7 +144,6 @@
                     {
                         goalX[index] = new Random().Next(2, Console.BufferWidth - 2);
                         goalY[index] = new Random().Next(2, Console.BufferHeight - 2);
-                        boxOnGoal = 0;      // 골 카운트 초기화
                         isBoxOnGoal[index] = false;     // 골에 들어간 것으로 처리된 박스들 초기화
                     }
 
@@ -292,24 +288,6 @@
                     newGoalX[i] = goalX[i];
                     newGoalY[i] = goalY[i];
                 }*/
-
-                bool toGoal = false;
-
-                // 플레이어가 골을 향해 이동하려 할 때
-                for (int index = 0; index < newGoalX.Length; index++)
-                {
-                    if (newPlayerX == newGoalX[index] && newPlayerY == newGoalY[index])
-                    {
-                        toGoal = true;
-                        break;
-                    }
-                }
-
-                if (toGoal)
-                {
-                    continue;
-                }
-
                 bool isSide = false;
 
                 // 플레이어가 박스를 이동하다 박스가 콘솔창의 끝에 도달했을 때
@@ -350,21 +328,25 @@
                     playerY = newPlayerY;
                 }
 
+                isBoxOnGoal[pushedBox] = false;
                 for (int index = 0; index < newGoalX.Length; index++)
                 {
                     // 박스가 골에 도달했을 시
                     if (newBoxX[pushedBox] == newGoalX[index] && newBoxY[pushedBox] == newGoalY[index])
                     {
-                        if (!isBoxOnGoal[pushedBox]) // 이미 골에 들어간 박스는 더이상 증가하지 않도록
-                        {
-                            ++boxOnGoal;
-                            isBoxOnGoal[pushedBox] = true;
-                        }
+                        isBoxOnGoal[pushedBox] = true;
                         break;
                     }
                 }
 
-                if (boxOnGoal == goalX.Length)
+                bool isClear = true;
+
+                for(int index = 0; index < isBoxOnGoal.Length; index++)
+                {
+                    isClear &= isBoxOnGoal[index];
+                }
+
+                if (isClear)
                 {
                     break;
                 }
