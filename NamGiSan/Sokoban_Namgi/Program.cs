@@ -1,221 +1,245 @@
-﻿using System;
+﻿﻿using System.Data;
+using System.Runtime.InteropServices;
+using System.Security.Principal;
 
 namespace Sokoban
 {
-    class Program
+    enum Direction
+    {
+        None,
+        Left,
+        Right,
+        Up,
+        Down
+    }
+
+    internal class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine($"생성할 오브젝트 갯수 >> ");
-            int num = int.Parse(Console.ReadLine());
+            Console.ResetColor();
+            Console.CursorVisible = false;
+            Console.Title = "Project_CtrlC_CtrlV";
+            Console.BackgroundColor = ConsoleColor.White;
+            Console.ForegroundColor = ConsoleColor.Black;
+            Console.Clear();
 
+            int playerX = 10;
+            int playerY = 20;
+            Direction playerDirection = Direction.None;
 
-            // 초기 세팅     
-            Console.ResetColor();                               //컬러를 초기화한다.
-            Console.CursorVisible = false;                      // 커서를 숨긴다.
-            Console.Title = "First Project Sokoban";            // 타이틀을 설정한다.
-            Console.BackgroundColor = ConsoleColor.White;       // 배경색을 설정한다.
-            Console.ForegroundColor = ConsoleColor.Black;       // 글꼴색을 설정한다.
-            Console.Clear();                                    // 콘솔 창에 출력된 내용을 모두 지운다.
+            int[] boxPositionX = { 7, 1, 4 };
+            int[] boxPositionY = { 5, 2, 3 };
+            bool[] isBoxOnGoal = new bool[3];
 
-            // 플레이어 정보
-            int playerX = 2;
-            int playerY = 1;
-            int playerDirection = 0;                            // 0 : None, 1 : left, 2 : right, 3 : up, 4 : down
-
-            // 맵 정보
-            const int minMapX = 0;
-            const int minMapY = 0;
-            const int maxMapX = 25;
-            const int maxMapY = 21;
-
-            // 박스 정보
-            // 랜덤 위치 생성
-
-            int[] boxsX = new int[num];
-            int[] boxsY = new int[num];
-
-            Random ran = new Random();
-            for(int i = 0; i < num; i++)
-            {
-                int X = ran.Next(2, maxMapX - 2);
-                int Y = ran.Next(2, maxMapY - 2);
-
-                boxsX[i] = X;
-                boxsY[i] = Y;
-            }
+            int[] wallPositionX = new int[5] { 8, 9, 13, 5, 10 };
+            int[] wallPositionY = new int[5] { 8, 1, 6, 9, 3 };
             
-            // 도착장소 정보
-            int goalX = 24;
-            int goalY = 10;
-
+            int[] goalPositionX = new int[3] { 15, 8, 2 };
+            int[] goalPositionY = new int[3] { 15, 4, 5 };
 
             while (true)
             {
-                // 출력 : 지속적으로 화면을 지우고 출력
+                //// ------------------------------ Render ---------------------------
                 Console.Clear();
                 Console.CursorVisible = false;
-                
-                // 게임 맵 출력
-                Console.SetCursorPosition(minMapX, minMapY);
-                for (int i = minMapY; i <= maxMapY; i++)
-                {
-                    Console.WriteLine("■                                               ■");
-                }
 
-                Console.SetCursorPosition(minMapX, maxMapY);
-                for (int i = minMapX; i <= maxMapX - 1; i++)
-                {
-                    Console.Write("■ ");
-                }
-
-                Console.SetCursorPosition(minMapX, minMapY);
-                for (int i = minMapX + 1; i<= maxMapX; i++)
-                {
-                    Console.Write("■ ");
-                }
-
-                // 플레이어 출력
                 Console.SetCursorPosition(playerX, playerY);
-                Console.Write("◎");
+                ConsoleColor prevColor = Console.ForegroundColor;
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Write("◈");
+                Console.ForegroundColor = prevColor;
 
-                // 박스 출력
-                for(int i = 0; i < num; i ++)
+                for (int index = 0; index < goalPositionX.Length; ++index)
                 {
-                    Console.SetCursorPosition(boxsX[i], boxsY[i]);
-                    Console.Write("★");
+                    Console.SetCursorPosition(goalPositionX[index], goalPositionY[index]);
+                    Console.Write("○");
                 }
 
-                // 도착장소 출력
-                Console.SetCursorPosition(goalX, goalY);
-                Console.Write("☆");
+                for (int index = 0; index < isBoxOnGoal.Length; ++index)
+                {
+                    if (isBoxOnGoal[index])
+                    {
+                        Console.SetCursorPosition(boxPositionX[index], boxPositionY[index]);
+                        prevColor = Console.ForegroundColor;
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write("●");
+                        Console.ForegroundColor = prevColor;
+                    }
+                    else
+                    {
+                        Console.SetCursorPosition(boxPositionX[index], boxPositionY[index]);
+                        Console.Write("●");
+                    }
+                }
 
-                // 방향키 입력
+                for (int index = 0; index < wallPositionX.Length; ++index)
+                {
+                    Console.SetCursorPosition(wallPositionX[index], wallPositionY[index]);
+                    Console.Write("▩");
+                }
+
+                // ------------------------------ ProcessInput ---------------------------
                 ConsoleKeyInfo keyInfo = Console.ReadKey();
-                ConsoleKey Key = keyInfo.Key;
 
-                // 플레이어 이동
-                if (Key == ConsoleKey.LeftArrow)
+                // ------------------------------ Update ---------------------------
+                int newPlayerX = playerX;
+                int newPlayerY = playerY;
+                playerDirection = Direction.None;
+
+                if (keyInfo.Key == ConsoleKey.LeftArrow)
                 {
-                    playerX -= 1;  //왼쪽
-                    playerDirection = 1;
-                }
-                if (Key == ConsoleKey.RightArrow)
-                { 
-                    playerX += 1; //오른쪽
-                    playerDirection = 2;
-                }
-                if (Key == ConsoleKey.UpArrow)
-                {
-                    playerY -= 1;    //위
-                    playerDirection = 3;
-                }
-                if (Key == ConsoleKey.DownArrow)
-                {
-                    playerY += 1;  //아래
-                    playerDirection = 4;
+                    newPlayerX -= 1;
+                    playerDirection = Direction.Left;
                 }
 
-                // 화면 밖으로 벗어날경우 되돌리기
-                if (playerX <= minMapX) playerX++;
-                if (playerX >= (maxMapX * 2)-2) playerX--;
-                if (playerY <= minMapY) playerY++;             
-                if (playerY >= maxMapY) playerY--;
-             
-                /*
-                // Shift를 입력한 채로 방향키 입력 : 3칸 이동
-                if (Key == ConsoleKey.LeftArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerX -= 3;  //왼쪽
-                if (Key == ConsoleKey.RightArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerX += 3; //오른쪽
-                if (Key == ConsoleKey.UpArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerY -= 3;    //위    
-                if (Key == ConsoleKey.DownArrow && keyInfo.Modifiers == ConsoleModifiers.Shift) playerY += 3;  //아래
-                */
-
-                for(int i = 0; i < num; i ++)
+                if (keyInfo.Key == ConsoleKey.RightArrow)
                 {
-                    // 박스의 이동
-                    if (playerX == boxsX[i] && playerY == boxsY[i])
+                    newPlayerX += 1;
+                    playerDirection = Direction.Right;
+                }
+
+                if (keyInfo.Key == ConsoleKey.UpArrow)
+                {
+                    newPlayerY -= 1;
+                    playerDirection = Direction.Up;
+                }
+
+                if (keyInfo.Key == ConsoleKey.DownArrow)
+                {
+                    newPlayerY += 1;
+                    playerDirection = Direction.Down;
+                }
+
+                // 플레이어와 박스가 충돌했을 때 => (플레이어 좌표) == (박스 좌표)
+                // int newBoxX = boxX;
+                // boxPosition들을 모두 newBox에 복사하는 것
+                int[] newBoxPositionX = new int[boxPositionX.Length];
+                boxPositionX.CopyTo(newBoxPositionX, 0);
+                int[] newBoxPositionY = new int[boxPositionY.Length];
+                boxPositionY.CopyTo(newBoxPositionY, 0);
+
+                int pushedBoxIndex = 0;
+                for (int index = 0; index < boxPositionX.Length; index++)
+                {
+                    // ! (NOT)
+                    // true -> false
+                    // false -> true
+                    //if (!(newPlayerX == newBoxPositionX[index] && newPlayerY == newBoxPositionY[index]))
+                    //if (false == (newPlayerX == newBoxPositionX[index] && newPlayerY == newBoxPositionY[index]))
+                    if (newPlayerX != newBoxPositionX[index] || newPlayerY != newBoxPositionY[index])
                     {
-                        switch (playerDirection)
-                        {
-                            case 1: // 왼쪽
-                                if (minMapX < boxsX[i])
-                                {
-                                    boxsX[i]--;
-
-                                    // 박스가 왼쪽 벽에 닿았을 떄
-                                    if (boxsX[i] == minMapX)
-                                    {
-                                        boxsX[i] = minMapX + 1;
-                                        playerX = boxsX[i] + 1;
-                                    }
-                                    
-                                }
-                                break;
-
-                            case 2: // 오른쪽
-                                if (boxsX[i] <= (maxMapX * 2) - 2)
-                                {
-                                    boxsX[i]++;
-
-                                    // 박스가 오른쪽 벽에 닿았을 떄
-                                    if (boxsX[i] == (maxMapX * 2) - 2)
-                                    {
-                                        boxsX[i] = (maxMapX * 2) - 3;
-                                        playerX = boxsX[i] - 1;
-                                    }
-                                    
-                                }
-                                break;
-
-                            case 3: // 위쪽
-                                if (minMapY <= boxsY[i])
-                                {
-                                    boxsY[i]--;
-
-                                    // 박스가 위쪽 벽에 닿았을 떄
-                                    if (boxsY[i] == minMapY)
-                                    {
-                                        boxsY[i] = minMapY + 1;
-                                        playerY = boxsY[i] + 1;
-                                    }
-                                    
-                                }
-                                break;
-
-                            case 4: // 아래쪽
-                                if (boxsY[i] <= maxMapY)
-                                {
-                                    boxsY[i]++;
-
-                                    // 박스가 위쪽 벽에 닿았을 떄
-                                    if (boxsY[i] == maxMapY)
-                                    {
-                                        boxsY[i] = maxMapY - 1;
-                                        playerY = boxsY[i] - 1;
-                                    }
-                                    
-                                }
-                                break;
-
-                            default:    // 오류처리
-                                Console.Clear();
-                                Console.WriteLine($"잘못된 방향 데이터입니다. 실제 데이터는 {playerDirection}");
-                                Environment.Exit(0);
-                                break;
-                        }
-
-
+                        continue;
                     }
 
-                    // 게임 종료
-                    if (boxsX[i] == goalX && boxsY[i] == goalY)
+                    pushedBoxIndex = index;
+
+                    // 박스는 플레이어가 이동한 방향으로 한 칸 이동한다.
+                    switch (playerDirection)
                     {
-                        Console.Clear();
-                        Console.WriteLine($"Game Clear");
-                        Environment.Exit(0);
+                        case Direction.Left:
+                            newBoxPositionX[index] -= 1;
+                            break;
+                        case Direction.Right:
+                            newBoxPositionX[index] += 1;
+                            break;
+                        case Direction.Up:
+                            newBoxPositionY[index] -= 1;
+                            break;
+                        case Direction.Down:
+                            newBoxPositionY[index] += 1;
+                            break;
+                        default:
+                            Console.Clear();
+                            Console.WriteLine($"잘못된 방향 데이터입니다. 실제 데이터는 {playerDirection}");
+                            Environment.Exit(0);
+                            break;
                     }
-                } 
+                }
+
+                // 벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다. => (벽의 좌표) != (박스의 좌표) && (벽의 좌표) != (플레이어의 좌표)
+
+                // 박스가 1개, 벽은 5개
+                // 박스가 3개, 벽은 5개 (다대다)
+
+                // 플레이어가 동시에 밀 수 있는 박스의 최대 개수는 1개다.
+                bool isCollidedToWall = false;
+                for (int index = 0; index < wallPositionX.Length; ++index)
+                {
+                    if (wallPositionX[index] == newPlayerX && wallPositionY[index] == newPlayerY ||
+                    wallPositionX[index] == newBoxPositionX[pushedBoxIndex] && wallPositionY[index] == newBoxPositionY[pushedBoxIndex])
+                    {
+                        isCollidedToWall = true;
+                        break;
+                    }
+                }
+
+                if (isCollidedToWall)
+                {
+                    continue;
+                }
+
+                bool isCollidedToBox = false;
+                for (int index = 0; index < newBoxPositionX.Length; ++index)
+                {
+                    if (index == pushedBoxIndex)
+                    {
+                        continue;
+                    }
+
+                    if (newBoxPositionX[index] == newBoxPositionX[pushedBoxIndex] &&
+                        newBoxPositionY[index] == newBoxPositionY[pushedBoxIndex])
+                    {
+                        isCollidedToBox = true;
+                        break;
+                    }
+                }
+
+                if (isCollidedToBox)
+                {
+                    continue;
+                }
+
+
+                if (0 <= newPlayerX && newPlayerX < Console.BufferWidth)
+                {
+                    playerX = newPlayerX;
+                }
+
+                if (0 <= newPlayerY && newPlayerY < Console.BufferHeight)
+                {
+                    playerY = newPlayerY;
+                }
+
+                newBoxPositionX.CopyTo(boxPositionX, 0);
+                newBoxPositionY.CopyTo(boxPositionY, 0);
+
+                isBoxOnGoal[pushedBoxIndex] = false;
+                for (int index = 0; index < goalPositionX.Length; ++index)
+                {
+                    if (boxPositionX[pushedBoxIndex] == goalPositionX[index] && boxPositionY[pushedBoxIndex] == goalPositionY[index])
+                    {
+                        isBoxOnGoal[pushedBoxIndex] = true;
+
+                        break;
+                    }
+                }
+
+                bool isClear = true;
+                for (int index =0; index < isBoxOnGoal.Length; ++index)
+                {
+                    isClear &= isBoxOnGoal[index];
+                }
+
+                if (isClear)
+                {
+                    break;
+                }
             }
+
+            Console.Clear();
+            Console.WriteLine("축하합니다. 소코반을 깼습니다.");
         }
+
     }
 }
