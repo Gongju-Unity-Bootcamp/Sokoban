@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 
 namespace Sokoban
 {
@@ -47,7 +48,6 @@ namespace Sokoban
             int boxCount = boxPositionX.Length;
 
             bool[] isBoxOnGoal = new bool[3];
-            bool isClear = false;
 
             while (true)
             {
@@ -247,17 +247,11 @@ namespace Sokoban
                     }
                 }
 
+                bool isClear = true;
+
                 for (int i = 0; i < isBoxOnGoal.Length; ++i)
                 {
-                    if (!isBoxOnGoal[i])
-                    {
-                        isClear = false;
-                        break;
-                    }
-                    else
-                    {
-                        isClear = true;
-                    }
+                    isClear &= isBoxOnGoal[i];
                 }
 
                 if (isClear)
