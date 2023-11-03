@@ -46,7 +46,8 @@ namespace Sokoban
             int[] boxPositionY = new int[3] { 7, 6, 4 };
             int boxCount = boxPositionX.Length;
 
-            bool[] isBoxOnGoals = new bool[3];
+            bool[] isBoxOnGoal = new bool[3];
+            bool isClear = false;
 
             while (true)
             {
@@ -60,19 +61,9 @@ namespace Sokoban
                 }
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("P");
-                for (int i = 0; i < goalCount; ++i)
-                {
-                    for (int j = 0; j < boxCount; ++j)
-                    {
-                        if (boxPositionX[i] == goalPositionX[j] && boxPositionY[i] == goalPositionY[j])
-                        {
-                            isBoxOnGoals[i] = true;
-                        }
-                    }
-                }
                 for (int i = 0; i < boxCount; ++i)
                 {
-                    if (isBoxOnGoals[i])
+                    if (isBoxOnGoal[i])
                     {
                         Console.ForegroundColor = ConsoleColor.White;
                         Console.SetCursorPosition(boxPositionX[i], boxPositionY[i]);
@@ -89,11 +80,6 @@ namespace Sokoban
                 {
                     Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
                     Console.Write("X");
-                }
-
-                for (int i = 0; i < boxCount; ++i)
-                {
-                    isBoxOnGoals[i] = false;
                 }
 
                 /// Process Input
@@ -129,11 +115,11 @@ namespace Sokoban
                 int[] newBoxY = new int[boxCount];
 
                 /// ArgumentOutOfRange 예외 처리 변수
-                for (int i = 0; i < boxCount; ++i)
-                {
-                    newBoxX[i] = boxPositionX[i];
-                    newBoxY[i] = boxPositionY[i];
-                }
+                boxPositionX.CopyTo(newBoxX, 0);
+                boxPositionY.CopyTo(newBoxY, 0);
+
+
+                int pushedBoxIndex = 0;
 
                 /// Player와 Box가 충돌했을 때, Box는 Player가 이동한 방향으로 한 칸 이동한다.
                 for (int i = 0; i < boxCount; ++i)
@@ -142,6 +128,9 @@ namespace Sokoban
                     {
                         continue;
                     }
+
+                    pushedBoxIndex = i;
+
                     switch (playerDirection)
                     {
                         case Direction.Left: /// Left
@@ -169,14 +158,11 @@ namespace Sokoban
                 /// 벽의 기능 : 벽의 위치로는 어떤 오브젝트도 위치할 수 없다.
                 for (int i = 0; i < wallCount; ++i)
                 {
-                    for (int j = 0; j < boxCount; ++j)
+                    if (wallPositionX[i] == newPlayerX && wallPositionY[i] == newPlayerY
+                    || wallPositionX[i] == newBoxX[pushedBoxIndex] && wallPositionY[i] == newBoxY[pushedBoxIndex])
                     {
-                        if (wallPositionX[i] == newPlayerX && wallPositionY[i] == newPlayerY
-                        || wallPositionX[i] == newBoxX[j] && wallPositionY[i] == newBoxY[j])
-                        {
-                            checkWall = true;
-                            break;
-                        }
+                        checkWall = true;
+                        break;
                     }
                 }
 
@@ -184,20 +170,9 @@ namespace Sokoban
 
                 for (int i = 0; i < boxCount; ++i)
                 {
-                    for (int j = 0; j < boxCount; ++j)
+                    if (i != pushedBoxIndex && (newBoxX[pushedBoxIndex] == newBoxX[i] && newBoxY[pushedBoxIndex] == newBoxY[i]))
                     {
-                        if (i != j)
-                        {
-                            if (newBoxX[i] == newBoxX[j] && newBoxY[i] == newBoxY[j])
-                            {
-                                checkBox = true;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (checkBox)
-                    {
+                        checkBox = true;
                         break;
                     }
                 }
@@ -211,7 +186,6 @@ namespace Sokoban
                 {
                     continue;
                 }
-
 
                 /// 예외 처리를 위한 유효성 검사
                 if (0 <= newPlayerX && newPlayerX < Console.BufferWidth)
@@ -260,13 +234,45 @@ namespace Sokoban
                     }
                 }
 
-                //if (boxX == goalPositionX[0] && boxY == goalPositionY[0])
-                //{
-                //    break;
-                //}
+                isBoxOnGoal[pushedBoxIndex] = false;
+
+                for (int i = 0; i < goalCount; ++i)
+                {
+                    for (int j = 0; j < boxCount; ++j)
+                    {
+                        if (boxPositionX[i] == goalPositionX[j] && boxPositionY[i] == goalPositionY[j])
+                        {
+                            isBoxOnGoal[i] = true;
+                        }
+                    }
+                }
+
+                for (int i = 0; i < isBoxOnGoal.Length; ++i)
+                {
+                    if (!isBoxOnGoal[i])
+                    {
+                        isClear = false;
+                        break;
+                    }
+                    else
+                    {
+                        isClear = true;
+                    }
+                }
+
+                if (isClear)
+                {
+                    break;
+                }
             }
-            //Console.Clear();
-            //Console.WriteLine("축하합니다. 소코반 성공!");
+            Console.Clear();
+            Console.WriteLine("축하합니다. 소코반 성공!");
         }
+
+        // Render
+        // Input
+        // CheckWall
+        // CheckBox
+        // CheckPlayer
     }
 }
