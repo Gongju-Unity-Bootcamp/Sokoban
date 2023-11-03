@@ -15,8 +15,10 @@ namespace sokoban
 
     internal class Program
     {
+        static ConsoleColor prevColor;
         static void Main(string[] args)
         {
+        
             Console.ResetColor();
             Console.CursorVisible = false;
             Console.Title = "game";
@@ -29,16 +31,16 @@ namespace sokoban
             int playerY = 20;
             Direction playerDirection = Direction.None;
 
-            //벽
+            //벽 좌표
             int[] wallPositionX = {11,12,13,14,15};
             int[] wallPositionY = {11,12,13,14,15};
-            //int wallX = 5;
-            //int wallY = 5;
 
             //박스 좌표
             int boxX = 7;
             int boxY = 7;
+            bool isBoxOnGoal = false; //박스가 골 위에 있는지 확인
 
+            //골 좌표
             int[] goalPositionX = {9,22,15};
             int[] goalPositionY = {9,22,20};
 
@@ -48,10 +50,31 @@ namespace sokoban
                 Console.Clear(); //창 매번 초기화
                 Console.CursorVisible = false; //창 커서 매번 지워주기
 
-
-                //플레이어를 출력한다.
+                //플레이어 출력
                 Console.SetCursorPosition(playerX, playerY);
                 Console.Write("I");
+
+                //골 지점 출력
+                for (int i = 0; i < goalPositionX.Length; i++)
+                {
+                    Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
+                    Console.Write("G");
+                }
+
+                if (isBoxOnGoal)
+                { 
+                    Console.SetCursorPosition(boxX, boxY);
+                    prevColor = Console.ForegroundColor;
+                    Console.ForegroundColor = ConsoleColor.Green;
+                    Console.Write("@");
+                }
+
+                else
+                {
+                    Console.SetCursorPosition(boxX, boxY);
+                    Console.ForegroundColor = prevColor;
+                    Console.Write("@");
+                }
 
                 //벽 출력
                 for(int i = 0; i < wallPositionX.Length; i++)
@@ -59,22 +82,11 @@ namespace sokoban
                     Console.SetCursorPosition(wallPositionX[i], wallPositionY[i]);
                     Console.Write("#");
                 }
-
+                
                 //박스 출력
                 Console.SetCursorPosition(boxX, boxY);
                 Console.Write("@");
-
-                //골 지점\
-                for(int i = 0; i < goalPositionX.Length; i++)
-                {
-                    Console.SetCursorPosition(goalPositionX[i], goalPositionY[i]);
-                    Console.Write("G");
-                }
-                
-
-                
-                
-
+                           
                 //----------processInput-----------
                 ConsoleKeyInfo keyInfo = Console.ReadKey(); //입력한 키 정보 담기
                 ConsoleKey key = keyInfo.Key;
@@ -109,15 +121,6 @@ namespace sokoban
                     playerY = (int)Math.Min(playerY + 1, Console.BufferHeight - 1);
                     playerDirection = Direction.Down;
                 }
-
-                /**벽 충돌
-                
-                    if (wallPositionX[i] == playerX && wallPositionY[i] == playerY || wallPositionX[i] == boxX && wallPositionY[i] == boxY)
-                    {
-                        continue;
-                    }
-                }
-                **/
 
                 //플레이어, 벽 충돌
                 for (int i = 0; i < wallPositionX.Length; i++)
@@ -214,19 +217,15 @@ namespace sokoban
                     }
                 }
 
-                /**
+                //박스가 골 위로 올라갔을 때 박스 효과
                 for (int i = 0; i < goalPositionX.Length; i++)
                 {
                     if (boxX == goalPositionX[i] && boxY == goalPositionY[i])
                     {
-                        break;
+                        isBoxOnGoal = true;
                     }
                 }
-                **/
-                Console.Clear();
-                Console.WriteLine("성공");
-            }
-            
+            }      
         }
     }
 }
