@@ -27,7 +27,6 @@ class Program
         int[] playerPosition = { 0, 0 };
         int[,] portalPosition = { { 10, 10 }, { 4, 6 }, { 17, 2 } };
         int[,] transPosition = { { 27, 13 }, { 20, 6 }, { 5, 15 } };
-        string[] directionCode = { " ", "←", "→", "↑", "↓" };
         Direction playerDirection = Direction.None; //0: None, 1: Left, 2: Right, 3: Up, 4: Down
                                                     //enumerate로 정리하면 깔끔해짐
 
@@ -36,28 +35,26 @@ class Program
         //우리가 알고 있는 데이터: 플레이어 좌표, 박스 좌표
         int[] boxPositionX = { 7, 8, 9 };
         int[] boxPositionY = { 9, 9, 9 };
-
         bool[] isBoxOnGoal = new bool[3]; //box와 연관된 객체이므로 똑같이 배열화
-
 
         int[] wallPositionX = { 1, 2, 3, 4, 5 };
         int[] wallPositionY = { 5, 5, 5, 5, 5 };
 
-
         int[] goalPositionX = { 12, 13, 14 };
         int[] goalPositionY = { 12, 13, 14 };
-
 
         bool isCollidedToWall = false;
         int pushedBoxIndex = 0;
 
-        ConsoleColor prevColor = Console.ForegroundColor;
 
         while (true)
         {
             /// Render
             Console.Clear();
             Console.CursorVisible = false;
+
+            Console.SetCursorPosition(playerPosition[0], playerPosition[1]);
+            ConsoleColor prevColor = Console.ForegroundColor;
 
 
             for (int i = 0; i < wallPositionX.Length; i++)
@@ -86,11 +83,17 @@ class Program
                 if (isBoxOnGoal[i])
                 {
                     //Thread.Sleep(100);
+                    prevColor = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.SetCursorPosition(boxPositionX[pushedBoxIndex], boxPositionY[pushedBoxIndex]);
+                    Console.SetCursorPosition(boxPositionX[i], boxPositionY[i]);
                     Console.Write("▲");
                     Console.ForegroundColor = prevColor;
                     //Console.WriteLine("Congratulation! You clear this stage!");
+                }
+                else
+                {
+                    Console.SetCursorPosition(boxPositionX[i], boxPositionY[i]);
+                    Console.Write("▲");
                 }
             }
 
@@ -146,6 +149,8 @@ class Program
                     continue;
                 }
 
+                pushedBoxIndex = i;
+
                 switch (playerDirection)
                 {
                     case Direction.Left: //left
@@ -167,19 +172,6 @@ class Program
                         break;
                 }
 
-            }
-
-
-            //벽 기능: 벽의 위치에는 어떤 오브젝트도 위치할 수 없다. => (벽의 좌표) != (박스의 좌표) && (벽의 좌표) != (플레이어 좌표)
-            //여러가지 박스 중에 플레이어가 움직일 수 있는 박스는 1개
-            //그 박스를 특정할 수 있으면?
-
-            for (int i = 0; i < newBoxPositionX.Length; i++)
-            {
-                if (newBoxPositionX[i] != boxPositionX[i] || newBoxPositionY[i] != boxPositionY[i])
-                {
-                    pushedBoxIndex = i;
-                }
             }
 
             for (int i = 0; i < wallPositionX.Length; i++)
@@ -227,22 +219,18 @@ class Program
                 playerPosition[1] = newPlayerY;
             }
 
+            newBoxPositionX.CopyTo(boxPositionX, 0);
+            newBoxPositionY.CopyTo(boxPositionY, 0);
 
+            isBoxOnGoal[pushedBoxIndex] = false;
             for (int i = 0; i < goalPositionX.Length; i++)
             {
-                if (newBoxPositionX[pushedBoxIndex] == goalPositionX[i] && newBoxPositionY[pushedBoxIndex] == goalPositionY[i])
+                if (boxPositionX[pushedBoxIndex] == goalPositionX[i] && boxPositionY[pushedBoxIndex] == goalPositionY[i])
                 {
                     isBoxOnGoal[i] = true;
                     break;
                 }
-                else
-                {
-                    isBoxOnGoal[i] = false;
-                }
             }
-
-            newBoxPositionX.CopyTo(boxPositionX, 0);
-            newBoxPositionY.CopyTo(boxPositionY, 0);
 
             for (int i = 0; i < newBoxPositionX.Length; i++)
             {
@@ -260,9 +248,24 @@ class Program
                 }
             }
 
+            bool isClear = true;
+            for (int i = 0; i < isBoxOnGoal.Length; i++)
+            {
+                isClear &= isBoxOnGoal[i];
+            }
+
+            if (isClear)
+            {
+                break;
+            }
+
             if (key == ConsoleKey.Escape)
                 return;
 
         }
+
+        Console.Clear();
+        Console.SetCursorPosition(Console.BufferWidth / 2, Console.BufferHeight / 2);
+        Console.WriteLine("Congratulation!! You did a Great job!!");
     }
 }
